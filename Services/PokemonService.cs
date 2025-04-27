@@ -1,5 +1,6 @@
 // TODO: Implement the PokemonService class to act as the basic game logic layer
 using System;
+using System.Linq;
 using PokemonPocket.Data;
 using PokemonPocket.Models;
 namespace PokemonPocket.Services
@@ -13,11 +14,70 @@ namespace PokemonPocket.Services
       }
 
       private void addPokemon() {
-        Console.WriteLine("addPokemon executed");
+
+        Console.Write ("Enter Pokemon's Name: ");
+        string name = Console.ReadLine();
+
+        Console.Write ("Enter Pokemon's HP: ");
+        string hp = Console.ReadLine();
+
+        Console.Write ("Enter Pokemon's Exp: ");
+        string exp = Console.ReadLine();
+
+        switch (name.ToLower()) {
+
+          case "pikachu":
+            Pikachu pikachu = new Pikachu(){
+              HP = int.Parse(hp),
+              Name = "Pikachu",
+              Exp = int.Parse(exp)
+            };
+
+            this._context.Add(pikachu);
+            break;
+
+          case "charmander":
+            Charmander charmander = new Charmander(){
+              HP = int.Parse(hp),
+              Name = "Charmander",
+              Exp = int.Parse(exp)
+            };
+
+            this._context.Add(charmander);
+
+            break;
+
+          case "eevee":
+            Eevee eevee = new Eevee(){
+              HP = int.Parse(hp),
+              Name = "Eevee",
+              Exp = int.Parse(exp)
+            };
+
+            this._context.Add(eevee);
+
+            break;
+
+          default:
+            Console.WriteLine("Pokemon not recognized.");
+            break;
+        }
+        
+        this._context.SaveChanges();
       }
 
       private void listPokemon() {
-        Console.WriteLine("listPokemon executed");
+        var pokemon = this._context.Pokemon
+          .OrderByDescending(p => p.Exp)
+          .ToList();
+        
+        foreach (var p in pokemon) {
+          Console.WriteLine($"Name: {p.Name}");
+          Console.WriteLine($"HP: {p.HP}");
+          Console.WriteLine($"Name: {p.Exp}");
+          Console.WriteLine($"Name: {p.Skill}");
+          Console.WriteLine($"------------------------------");
+        }
       }
 
       private void checkEvolutionStatus() {

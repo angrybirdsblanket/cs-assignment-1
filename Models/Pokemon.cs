@@ -8,11 +8,11 @@ namespace PokemonPocket.Models
     {
         [Key]
         public int Id { get; set; }
-        public string Name { get; }
-        public int HP { get; protected set; }
+        public string Name { get; set;}
+        public int HP { get; set; }
         public int Exp { get; set; }
-        public string Skill { get; protected set; }
-        public int SkillDamage { get; protected set; }
+        public string Skill { get; set; }
+        public int SkillDamage { get; set; }
 
         // empty constructor for EF Core
         public Pokemon() { }
