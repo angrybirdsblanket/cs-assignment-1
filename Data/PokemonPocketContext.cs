@@ -6,7 +6,10 @@ public enum PokemonType
 {
     Pikachu,
     Charmander,
-    Eevee
+    Eevee,
+    Raichu,
+    Flareon,
+    Charmeleon
 }
 
 public class PokemonPocketContext : DbContext
@@ -32,7 +35,10 @@ public class PokemonPocketContext : DbContext
           .HasDiscriminator<PokemonType>("PokemonType")
           .HasValue<Pikachu>(PokemonType.Pikachu)
           .HasValue<Charmander>(PokemonType.Charmander)
-          .HasValue<Eevee>(PokemonType.Eevee);
+          .HasValue<Eevee>(PokemonType.Eevee)
+          .HasValue<Raichu>(PokemonType.Raichu)
+          .HasValue<Flareon>(PokemonType.Flareon)
+          .HasValue<Charmeleon>(PokemonType.Charmeleon);
     }
 
 }

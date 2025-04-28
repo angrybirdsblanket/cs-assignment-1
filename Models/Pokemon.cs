@@ -8,7 +8,7 @@ namespace PokemonPocket.Models
     {
         [Key]
         public int Id { get; set; }
-        public string Name { get; set;}
+        public string Name { get; set; }
         public int HP { get; set; }
         public int Exp { get; set; }
         public string Skill { get; set; }

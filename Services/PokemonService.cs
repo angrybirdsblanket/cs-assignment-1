@@ -1,134 +1,217 @@
 // TODO: Implement the PokemonService class to act as the basic game logic layer
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using PokemonPocket.Data;
 using PokemonPocket.Models;
 namespace PokemonPocket.Services
+
 {
-    public class PokemonService     
+  public class PokemonService
+  {
+    private readonly PokemonPocketContext _context;
+
+    public PokemonService(PokemonPocketContext context)
     {
-      private readonly PokemonPocketContext _context;
+      this._context = context;
+    }
 
-      public PokemonService(PokemonPocketContext context) {
-        this._context = context;
+    private void addPokemon()
+    {
+
+      Console.Write("Enter Pokemon's Name: ");
+      string name = Console.ReadLine();
+
+      Console.Write("Enter Pokemon's HP: ");
+      string hp = Console.ReadLine();
+
+      Console.Write("Enter Pokemon's Exp: ");
+      string exp = Console.ReadLine();
+
+      switch (name.ToLower())
+      {
+
+        case "pikachu":
+          Pikachu pikachu = new Pikachu()
+          {
+            HP = int.Parse(hp),
+            Name = "Pikachu",
+            Exp = int.Parse(exp)
+          };
+
+          this._context.Add(pikachu);
+          break;
+
+        case "charmander":
+          Charmander charmander = new Charmander()
+          {
+            HP = int.Parse(hp),
+            Name = "Charmander",
+            Exp = int.Parse(exp)
+          };
+
+          this._context.Add(charmander);
+
+          break;
+
+        case "eevee":
+          Eevee eevee = new Eevee()
+          {
+            HP = int.Parse(hp),
+            Name = "Eevee",
+            Exp = int.Parse(exp)
+          };
+
+          this._context.Add(eevee);
+
+          break;
+
+        default:
+          Console.WriteLine("Pokemon not recognized.");
+          break;
       }
 
-      private void addPokemon() {
+      this._context.SaveChanges();
+    }
 
-        Console.Write ("Enter Pokemon's Name: ");
-        string name = Console.ReadLine();
+    private void listPokemon()
+    {
+      var pokemon = this._context.Pokemon
+        .OrderByDescending(p => p.Exp)
+        .ToList();
 
-        Console.Write ("Enter Pokemon's HP: ");
-        string hp = Console.ReadLine();
+      if (pokemon.Count == 0)
+      {
+        Console.WriteLine("Your Pocket is empty");
+      }
 
-        Console.Write ("Enter Pokemon's Exp: ");
-        string exp = Console.ReadLine();
+      foreach (var p in pokemon)
+      {
+        Console.WriteLine($"Name: {p.Name}");
+        Console.WriteLine($"HP: {p.HP}");
+        Console.WriteLine($"Name: {p.Exp}");
+        Console.WriteLine($"Name: {p.Skill}");
+        Console.WriteLine($"------------------------------");
+      }
+    }
 
-        switch (name.ToLower()) {
+    private void checkEvolutionStatus()
+    {
+      List<PokemonMaster> rules = this._context.EvolutionRules
+        .ToList();
+      foreach (PokemonMaster rule in rules)
+      {
+        var list = this._context.Pokemon
+          .Where(p => p.Name == rule.Name)
+          .ToList();
 
-          case "pikachu":
-            Pikachu pikachu = new Pikachu(){
-              HP = int.Parse(hp),
-              Name = "Pikachu",
-              Exp = int.Parse(exp)
-            };
+        if (list.Count >= rule.NoToEvolve)
+        {
+          int eligibleCount = list.Count / rule.NoToEvolve * rule.NoToEvolve;
 
-            this._context.Add(pikachu);
-            break;
-
-          case "charmander":
-            Charmander charmander = new Charmander(){
-              HP = int.Parse(hp),
-              Name = "Charmander",
-              Exp = int.Parse(exp)
-            };
-
-            this._context.Add(charmander);
-
-            break;
-
-          case "eevee":
-            Eevee eevee = new Eevee(){
-              HP = int.Parse(hp),
-              Name = "Eevee",
-              Exp = int.Parse(exp)
-            };
-
-            this._context.Add(eevee);
-
-            break;
-
-          default:
-            Console.WriteLine("Pokemon not recognized.");
-            break;
+          Console.WriteLine($"{eligibleCount} {rule.Name} ---> {eligibleCount/rule.NoToEvolve} {rule.EvolveTo}");
         }
-        
-        this._context.SaveChanges();
       }
+    }
 
-      private void listPokemon() {
-        var pokemon = this._context.Pokemon
+    private void evolveEligiblePokemon()
+    {
+      // Load all the evolution rules
+      var rules = _context.EvolutionRules
+        .ToList();
+
+      foreach (var rule in rules)
+      {
+        // Get all Pokémon matching the base name, highest Exp first
+        var pocket = _context.Pokemon
+          .Where(p => p.Name == rule.Name)
           .OrderByDescending(p => p.Exp)
           .ToList();
-        
-        foreach (var p in pokemon) {
-          Console.WriteLine($"Name: {p.Name}");
-          Console.WriteLine($"HP: {p.HP}");
-          Console.WriteLine($"Name: {p.Exp}");
-          Console.WriteLine($"Name: {p.Skill}");
-          Console.WriteLine($"------------------------------");
+
+        // How many full groups of NoToEvolve we have
+        int fullGroups = pocket.Count / rule.NoToEvolve;
+
+        for (int g = 0; g < fullGroups; g++)
+        {
+          // Take exactly rule.NoToEvolve from the top
+          var batch = pocket
+            .Skip(g * rule.NoToEvolve)
+            .Take(rule.NoToEvolve)
+            .ToList();
+
+          // Compute the stats for the new evolved form
+          int maxHp  = batch.Max(p => p.HP);
+          int maxExp = batch.Max(p => p.Exp);
+
+          // Remove all originals in one go
+          _context.Pokemon.RemoveRange(batch);
+
+          // Create the right evolved type
+          Pokemon evolved = rule.EvolveTo.ToLower() switch
+          {
+            "raichu"     => new Raichu     { HP = maxHp, Exp = maxExp, Name = "Raichu" },
+            "charmeleon" => new Charmeleon { HP = maxHp, Exp = maxExp, Name = "Charmeleon" },
+            "flareon"    => new Flareon    { HP = maxHp, Exp = maxExp, Name = "Flareon" },
+            _            => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
+          };
+
+          // Add the evolved Pokémon
+          _context.Pokemon.Add(evolved);
         }
       }
 
-      private void checkEvolutionStatus() {
-        Console.WriteLine("checkEvolutionStatus executed");
-      }
-
-      private void evolveEligiblePokemon() {
-        Console.WriteLine("evolveEligiblePokemon executed");
-      }
-
-      private void drawMenu() {
-        Console.WriteLine("*****************************");
-        Console.WriteLine("Welcome to Pokemon Pocket App");
-        Console.WriteLine("*****************************");
-        Console.WriteLine("(1). Add Pokemon to my Pocket");
-        Console.WriteLine("(2). List Pokemon(s) in my Pocket");
-        Console.WriteLine("(3). Check if I can evolve my Pokemon");
-        Console.WriteLine("(4). Evolve Pokemon");
-        Console.Write("Please enter [1,2,3,4] or Q to quit: ");
-      }
-
-      public bool GetNextAction() {
-        this.drawMenu();
-
-        string input = Console.ReadLine();
-        if (string.IsNullOrEmpty(input)) return true;  // Handle invalid or empty input
-        char response = input[0];
-
-        switch (response) {
-          case '1':
-            addPokemon();
-            break;
-          case '2':
-            listPokemon();
-            break;
-          case '3':
-            checkEvolutionStatus();
-            break;
-          case '4':
-            evolveEligiblePokemon();
-            break;
-          case 'q':
-          case 'Q':
-            return false;
-          default:
-            return true;
-        }
-        // this is unreachable code, but it is here to satisfy the compiler
-        return true;
-      }
-
-
+      // Persist *all* the removals + adds in a single transaction
+      _context.SaveChanges();
     }
+
+    private void drawMenu()
+    {
+      Console.WriteLine("*****************************");
+      Console.WriteLine("Welcome to Pokemon Pocket App");
+      Console.WriteLine("*****************************");
+      Console.WriteLine("(1). Add Pokemon to my Pocket");
+      Console.WriteLine("(2). List Pokemon(s) in my Pocket");
+      Console.WriteLine("(3). Check if I can evolve my Pokemon");
+      Console.WriteLine("(4). Evolve Pokemon");
+      Console.Write("Please enter [1,2,3,4] or Q to quit: ");
+    }
+
+    public bool GetNextAction()
+    {
+      this.drawMenu();
+
+      string input = Console.ReadLine();
+
+      if (string.IsNullOrEmpty(input)) {     // Handle invalid or empty input
+        Console.WriteLine("Invalid input, please try again");
+        return true;
+      }              
+
+      char response = input[0];
+
+      switch (response)
+      {
+        case '1':
+          addPokemon();
+          break;
+        case '2':
+          listPokemon();
+          break;
+        case '3':
+          checkEvolutionStatus();
+          break;
+        case '4':
+          evolveEligiblePokemon();
+          break;
+        case 'q':
+        case 'Q':
+          return false;
+        default:
+          return true;
+      }
+      return true;
+    }
+
+
+  }
 }
