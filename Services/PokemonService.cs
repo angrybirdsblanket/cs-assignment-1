@@ -1,4 +1,3 @@
-// TODO: Implement the PokemonService class to act as the basic game logic layer
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +22,12 @@ namespace PokemonPocket.Services
 
       Console.Write("Enter Pokemon's Name: ");
       string name = Console.ReadLine();
+
+      if (!new[] { "pikachu", "eevee", "charmander" }.Contains(name.ToLower()))
+      {
+        Console.WriteLine("Pokemon not recognised.");
+        return;
+      }
 
       Console.Write("Enter Pokemon's HP: ");
       string hp = Console.ReadLine();
@@ -67,10 +72,6 @@ namespace PokemonPocket.Services
           this._context.Add(eevee);
 
           break;
-
-        default:
-          Console.WriteLine("Pokemon not recognized.");
-          break;
       }
 
       this._context.SaveChanges();
@@ -111,7 +112,7 @@ namespace PokemonPocket.Services
         {
           int eligibleCount = list.Count / rule.NoToEvolve * rule.NoToEvolve;
 
-          Console.WriteLine($"{eligibleCount} {rule.Name} ---> {eligibleCount/rule.NoToEvolve} {rule.EvolveTo}");
+          Console.WriteLine($"{eligibleCount} {rule.Name} ---> {eligibleCount / rule.NoToEvolve} {rule.EvolveTo}");
         }
       }
     }
@@ -142,7 +143,7 @@ namespace PokemonPocket.Services
             .ToList();
 
           // Compute the stats for the new evolved form
-          int maxHp  = batch.Max(p => p.HP);
+          int maxHp = batch.Max(p => p.HP);
           int maxExp = batch.Max(p => p.Exp);
 
           // Remove all originals in one go
@@ -151,10 +152,10 @@ namespace PokemonPocket.Services
           // Create the right evolved type
           Pokemon evolved = rule.EvolveTo.ToLower() switch
           {
-            "raichu"     => new Raichu     { HP = maxHp, Exp = maxExp, Name = "Raichu" },
+            "raichu" => new Raichu { HP = maxHp, Exp = maxExp, Name = "Raichu" },
             "charmeleon" => new Charmeleon { HP = maxHp, Exp = maxExp, Name = "Charmeleon" },
-            "flareon"    => new Flareon    { HP = maxHp, Exp = maxExp, Name = "Flareon" },
-            _            => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
+            "flareon" => new Flareon { HP = maxHp, Exp = maxExp, Name = "Flareon" },
+            _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
           };
 
           // Add the evolved Pokémon
@@ -175,7 +176,8 @@ namespace PokemonPocket.Services
       Console.WriteLine("(2). List Pokemon(s) in my Pocket");
       Console.WriteLine("(3). Check if I can evolve my Pokemon");
       Console.WriteLine("(4). Evolve Pokemon");
-      Console.Write("Please enter [1,2,3,4] or Q to quit: ");
+      Console.WriteLine("(5). Fight and catch a Pokemon");
+      Console.Write("Please enter [1,2,3,4,5] or Q to quit: ");
     }
 
     public bool GetNextAction()
@@ -184,10 +186,11 @@ namespace PokemonPocket.Services
 
       string input = Console.ReadLine();
 
-      if (string.IsNullOrEmpty(input)) {     // Handle invalid or empty input
+      if (string.IsNullOrEmpty(input))
+      {     
         Console.WriteLine("Invalid input, please try again");
         return true;
-      }              
+      }
 
       char response = input[0];
 
@@ -205,6 +208,23 @@ namespace PokemonPocket.Services
         case '4':
           evolveEligiblePokemon();
           break;
+        case '5':
+          if (this._context.Pokemon.Count() <= 10)
+          {
+            Pokemon capturedPokemon = this._battles.Capture();
+
+            if (capturedPokemon is Pokemon)
+            {
+              this._context.Add(capturedPokemon);
+              this._context.SaveChanges();
+            }
+
+          }
+          else
+          {
+            Console.WriteLine("You have too many Pokemon in your pocket, please evolve or delete some from your pocket");
+          }
+          break;
         case 'q':
         case 'Q':
           return false;
@@ -214,7 +234,8 @@ namespace PokemonPocket.Services
       return true;
     }
 
-    public void InitialiseEvoRules() {
+    public void InitialiseEvoRules()
+    {
 
       var pikachu_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Pikachu");
       if (!(pikachu_query is PokemonMaster))

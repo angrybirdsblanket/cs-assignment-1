@@ -10,7 +10,7 @@ namespace PokemonPocket
         {
 
             using PokemonPocketContext context = new PokemonPocketContext();
-            BattleService battles = new BattleService();
+            BattleService battles = new BattleService(context);
             PokemonService service = new PokemonService(context, battles);
 
             service.InitialiseEvoRules();

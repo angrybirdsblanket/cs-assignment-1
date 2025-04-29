@@ -1,4 +1,4 @@
-using System;
+using static System.Math;
 using System.ComponentModel.DataAnnotations;
 namespace PokemonPocket.Models
 
@@ -26,11 +26,8 @@ namespace PokemonPocket.Models
             SkillDamage = skillDamage;
         }
 
-        public void CalculateDamage(int incomingSkillDamage)
-        {
-            int totalDamage = incomingSkillDamage * GetDamageMultiplier();
-            HP -= System.Math.Max(HP - totalDamage, 0);
-            Console.WriteLine($"{Name} took {totalDamage} damage and now has {HP} HP.");
+        public void Attack (Pokemon defender) {
+          defender.HP = Max(0, defender.HP - this.SkillDamage * this.GetDamageMultiplier());
         }
 
         protected abstract int GetDamageMultiplier();
