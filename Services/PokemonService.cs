@@ -10,10 +10,12 @@ namespace PokemonPocket.Services
   public class PokemonService
   {
     private readonly PokemonPocketContext _context;
+    private readonly BattleService _battles;
 
-    public PokemonService(PokemonPocketContext context)
+    public PokemonService(PokemonPocketContext context, BattleService battles)
     {
       this._context = context;
+      this._battles = battles;
     }
 
     private void addPokemon()
@@ -212,6 +214,48 @@ namespace PokemonPocket.Services
       return true;
     }
 
+    public void InitialiseEvoRules() {
+
+      var pikachu_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Pikachu");
+      if (!(pikachu_query is PokemonMaster))
+      {
+        PokemonMaster pikachu = new PokemonMaster()
+        {
+          Name = "Pikachu",
+          NoToEvolve = 2,
+          EvolveTo = "Raichu"
+        };
+        this._context.EvolutionRules.Add(pikachu);
+        this._context.SaveChanges();
+      }
+
+      var eevee_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Eevee");
+      if (!(eevee_query is PokemonMaster))
+      {
+        PokemonMaster eevee = new PokemonMaster()
+        {
+          Name = "Eevee",
+          NoToEvolve = 3,
+          EvolveTo = "Flareon"
+        };
+        this._context.EvolutionRules.Add(eevee);
+        this._context.SaveChanges();
+      }
+
+      var charmander_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Charmander");
+      if (!(charmander_query is PokemonMaster))
+      {
+        PokemonMaster charmander = new PokemonMaster()
+        {
+          Name = "Charmander",
+          NoToEvolve = 1,
+          EvolveTo = "Charmeleon"
+        };
+        this._context.EvolutionRules.Add(charmander);
+        this._context.SaveChanges();
+      }
+
+    }
 
   }
 }
