@@ -92,7 +92,7 @@ namespace PokemonPocket.Services
       {
         Console.WriteLine($"Name: {p.Name}");
         Console.WriteLine($"HP: {p.HP}");
-        Console.WriteLine($"Name: {p.Exp}");
+        Console.WriteLine($"Exp: {p.Exp}");
         Console.WriteLine($"Name: {p.Skill}");
         Console.WriteLine($"------------------------------");
       }
@@ -209,7 +209,7 @@ namespace PokemonPocket.Services
           evolveEligiblePokemon();
           break;
         case '5':
-          if (this._context.Pokemon.Count() <= 10)
+          if (this._context.Pokemon.Count() > 0)
           {
             Pokemon capturedPokemon = this._battles.Capture();
 
@@ -222,7 +222,7 @@ namespace PokemonPocket.Services
           }
           else
           {
-            Console.WriteLine("You have too many Pokemon in your pocket, please evolve or delete some from your pocket");
+            Console.WriteLine("Your Pocket is empty, please come back once you have pokemon inside.");
           }
           break;
         case 'q':

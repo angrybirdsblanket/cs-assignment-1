@@ -47,7 +47,7 @@ namespace PokemonPocket.Services
       bool success = false;
       int maxHp = pokemon.HP;
 
-      Console.WriteLine($"\nA wild {pokemon.Name} appeared!");
+      Console.WriteLine($"\nA wild {pokemon.Name} with {pokemon.HP} HP appeared!");
 
       List<Pokemon> pocket = _context.Pokemon.OrderBy(p => p.Id).ToList();
 
@@ -69,6 +69,7 @@ namespace PokemonPocket.Services
           if (success)
           {
             Console.WriteLine($"You successfully caught the {pokemon.Name}!");
+            pokemon.HP = maxHp;
             break;
           }
           else
