@@ -16,6 +16,8 @@ public class PokemonPocketContext : DbContext
 {
     public DbSet<PokemonMaster> EvolutionRules { get; set; } = null!;
     public DbSet<Pokemon> Pokemon { get; set; } = null!;
+    public DbSet<Player> Players { get; set; } = null!;
+    public DbSet<Badge> Badges { get; set; } = null!;
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -39,6 +41,12 @@ public class PokemonPocketContext : DbContext
           .HasValue<Raichu>(PokemonType.Raichu)
           .HasValue<Flareon>(PokemonType.Flareon)
           .HasValue<Charmeleon>(PokemonType.Charmeleon);
+
+        modelBuilder.Entity<Player>()
+          .HasMany(p => p.Badges)               
+          .WithOne(b => b.Player)               
+          .HasForeignKey(b => b.PlayerId)       
+          .OnDelete(DeleteBehavior.Cascade);    
     }
 
 }

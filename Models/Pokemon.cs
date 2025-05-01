@@ -1,4 +1,5 @@
 using static System.Math;
+using System;
 using System.ComponentModel.DataAnnotations;
 namespace PokemonPocket.Models
 
@@ -6,6 +7,8 @@ namespace PokemonPocket.Models
     // Base class for all Pokémon
     public abstract class Pokemon
     {
+        private readonly Random _random = new Random();
+
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
@@ -13,21 +16,30 @@ namespace PokemonPocket.Models
         public int Exp { get; set; }
         public string Skill { get; set; }
         public int SkillDamage { get; set; }
+        public int MaxHP { get; private set; }
 
         // empty constructor for EF Core
-        public Pokemon() { }
+        public Pokemon()
+        {
+
+        }
 
         public Pokemon(string name, int hp, int exp, string skill, int skillDamage)
         {
-            Name = name;
-            HP = hp;
-            Exp = exp;
-            Skill = skill;
-            SkillDamage = skillDamage;
+            this.Name = name;
+            this.HP = hp;
+            this.MaxHP = hp;
+            this.Exp = exp;
+            this.Skill = skill;
+            this.SkillDamage = skillDamage;
         }
 
-        public void Attack (Pokemon defender) {
-          defender.HP = Max(0, defender.HP - this.SkillDamage * this.GetDamageMultiplier());
+        public void Attack(Pokemon defender)
+        {
+            double multiplier = Max(this._random.NextDouble(), 0.5);
+            int damage = Convert.ToInt32(this.SkillDamage * this.GetDamageMultiplier() * multiplier);
+
+            defender.HP = Max(0, defender.HP - this.SkillDamage * this.GetDamageMultiplier());
         }
 
         protected abstract int GetDamageMultiplier();
