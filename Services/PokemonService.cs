@@ -153,15 +153,33 @@ namespace PokemonPocket.Services
             _context.SaveChanges();
         }
 
+        private void playerStats() {
+          Player player = this._context.Players
+            .Where(p => p.Id == 1)
+            .First();
+  
+          List<Pokemon> healablePokemon = this._context.Pokemon
+            .Where(p => p.MaxHP != p.HP)
+            .ToList();
+
+          Console.WriteLine($"You currently have {player.Gold} gold, and {healablePokemon.Count()} of your pokemon currently require healing");
+        }
+
         private void healPokemon() {
           var pokemonList = this._context.Pokemon
             .OrderBy(p => p.Id)
             .Where(p => p.HP != p.MaxHP)
             .ToList();
 
+          int totalHealthPercentMissing = 0;
           foreach (Pokemon pokemon in pokemonList) {
-            Console.WriteLine(pokemon.Name);
+            int healthPercentMissing = (pokemon.MaxHP - pokemon.HP) * 100 / pokemon.MaxHP;
+            totalHealthPercentMissing += healthPercentMissing;
           }
+
+          int goldRequired = totalHealthPercentMissing / 10;
+
+          Console.WriteLine($"To heal your Pokemon, you need to pay {goldRequired} gold.");
 
         }
 
@@ -174,9 +192,10 @@ namespace PokemonPocket.Services
             Console.WriteLine("(2). List Pokemon(s) in my Pocket");
             Console.WriteLine("(3). Check if I can evolve my Pokemon");
             Console.WriteLine("(4). Evolve Pokemon");
-            Console.WriteLine("(5). Heal your Pokemon");
-            Console.WriteLine("(6). Fight and catch a Pokemon");
-            Console.Write("Please enter [1,2,3,4,5] or Q to quit: ");
+            Console.WriteLine("(5). Check your player Statistics");
+            Console.WriteLine("(6). Heal your Pokemon");
+            Console.WriteLine("(7). Fight and catch a Pokemon");
+            Console.Write("Please enter [1,2,3,4,5,6,7] or Q to quit: ");
         }
 
         public bool GetNextAction()
@@ -208,9 +227,12 @@ namespace PokemonPocket.Services
                     evolveEligiblePokemon();
                     break;
                 case '5':
-                    healPokemon();
+                    playerStats();
                     break;
                 case '6':
+                    healPokemon();
+                    break;
+                case '7':
                     if (this._context.Pokemon.Count() > 0)
                     {
                         Pokemon capturedPokemon = this._battles.Capture();

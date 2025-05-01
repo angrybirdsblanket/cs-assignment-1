@@ -7,11 +7,11 @@ namespace PokemonPocket.Models {
 
     [Key]
     public int Id { get; set; }
-    public int gold { get; set; }
+    public int Gold { get; set; }
     public ICollection<Badge> Badges { get; set; } = null!;
 
     public Player() {
-      this.gold = 10;
+      this.Gold = 10;
     }
 
   }

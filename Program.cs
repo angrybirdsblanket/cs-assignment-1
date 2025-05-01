@@ -19,7 +19,8 @@ namespace PokemonPocket
 
       /* there will always be one player
          if no player is found, the below if statement will generate one and add to the database*/
-      if (context.Players.First() == null) {
+
+      if (context.Players.FirstOrDefault() == null) {
         Player player = new Player();
         context.Add(player);
         context.SaveChanges();
