@@ -35,16 +35,12 @@ namespace PokemonPocket.Services
     {
       var pokemonTypes = new List<Func<Pokemon>>
       {
-        () => new Pikachu(),
-        () => new Eevee(),
-        () => new Charmander()
+        () => new Pikachu(this._random.Next(180, 301), 0),
+        () => new Eevee(this._random.Next(180, 301), 0),
+        () => new Charmander(this._random.Next(180, 301), 0)
       };
 
-      Pokemon wild = pokemonTypes[_random.Next(pokemonTypes.Count)]();
-      wild.HP = _random.Next(180, 301);
-      wild.Exp = 0;
-      wild.Name = wild.GetType().Name;
-
+      Pokemon wild = pokemonTypes[this._random.Next(pokemonTypes.Count)]();
       return wild;
     }
 
@@ -122,13 +118,13 @@ namespace PokemonPocket.Services
 
     private void ExecuteBattleRound(Pokemon attacker, Pokemon wild)
     {
-      attacker.Attack(wild);
-      Console.WriteLine($"{attacker.Name} attacked {wild.Name} and left it with {wild.HP} HP!");
+      int damage = attacker.Attack(wild);
+      Console.WriteLine($"{attacker.Name} attacked {wild.Name} for {damage} damage and left it with {wild.HP} HP!");
 
       if (wild.HP > 0)
       {
-        wild.Attack(attacker);
-        Console.WriteLine($"{wild.Name} attacked {attacker.Name} and left it with {attacker.HP} HP!");
+        damage = wild.Attack(attacker);
+        Console.WriteLine($"{wild.Name} attacked {attacker.Name} for {damage} damage and left it with {attacker.HP} HP!");
       }
     }
 
@@ -151,7 +147,7 @@ namespace PokemonPocket.Services
 
     private bool PromptForCapture(Pokemon wild, int maxHp, ref int attempts, out int goldGain)
     {
-      goldGain = 0; // ✅ Guarantees it's always assigned before any return
+      goldGain = 0; 
 
       Console.Write("Would you like to try and capture? (y/n): ");
       string input = Console.ReadLine();
@@ -161,13 +157,12 @@ namespace PokemonPocket.Services
         if (AttemptCatch(wild, maxHp))
         {
           double healthPercentage = (double)wild.HP / maxHp;
-          int baseGold = (int)(maxHp / 10);
-          goldGain = healthPercentage > 0.5
-            ? (int)(baseGold * healthPercentage + baseGold)
-            : baseGold;
+          int baseGold = 20;
+          goldGain = (int)(baseGold * healthPercentage);
 
           Console.WriteLine($"You successfully caught the {wild.Name} and gained {goldGain} gold!");
           wild.HP = maxHp;
+          wild.MaxHP = maxHp;
           return true;
         }
 
@@ -184,10 +179,8 @@ namespace PokemonPocket.Services
             if (AttemptCatch(wild, maxHp))
             {
               double healthPercentage = (double)wild.HP / maxHp;
-              int baseGold = (int)(maxHp / 10);
-              goldGain = healthPercentage > 0.5
-                ? (int)(baseGold * healthPercentage)
-                : baseGold;
+              int baseGold = 20;
+              goldGain = (int)(baseGold * healthPercentage);
 
               Console.WriteLine($"You successfully caught the {wild.Name} and gained {goldGain} gold!");
               wild.HP = maxHp;
@@ -204,7 +197,7 @@ namespace PokemonPocket.Services
     private bool AttemptCatch(Pokemon wild, int maxHp)
     {
       int percentageChance = (int)(((double)(maxHp - wild.HP) / maxHp) * 100);
-      return _random.Next(1, 101) <= percentageChance;
+      return this._random.Next(1, 101) <= percentageChance;
     }
   }
 }

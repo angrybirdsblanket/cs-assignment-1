@@ -16,7 +16,8 @@ namespace PokemonPocket.Models
         public int Exp { get; set; }
         public string Skill { get; set; }
         public int SkillDamage { get; set; }
-        public int MaxHP { get; private set; }
+        public int MaxHP { get; set; }
+        public int Level { get; set; }
 
         // empty constructor for EF Core
         public Pokemon()
@@ -34,12 +35,25 @@ namespace PokemonPocket.Models
             this.SkillDamage = skillDamage;
         }
 
-        public void Attack(Pokemon defender)
+        public int Attack(Pokemon defender)
         {
             double multiplier = Max(this._random.NextDouble(), 0.5);
             int damage = Convert.ToInt32(this.SkillDamage * this.GetDamageMultiplier() * multiplier);
 
-            defender.HP = Max(0, defender.HP - this.SkillDamage * this.GetDamageMultiplier());
+            defender.HP = Max(0, defender.HP - damage * this.GetDamageMultiplier());
+            return damage;
+        }
+
+        public void Heal() {
+          this.HP = this.MaxHP;
+        }
+
+        public void LevelUp() {
+          this.Exp -= 100;
+          this.Level += 1;
+          this.SkillDamage += 5;
+
+          Console.WriteLine($"{this.Name} has leveled up to level {this.Level}!");
         }
 
         protected abstract int GetDamageMultiplier();

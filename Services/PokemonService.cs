@@ -79,7 +79,8 @@ namespace PokemonPocket.Services
                 Console.WriteLine($"Name: {p.Name}");
                 Console.WriteLine($"HP: {p.HP}");
                 Console.WriteLine($"Exp: {p.Exp}");
-                Console.WriteLine($"Name: {p.Skill}");
+                Console.WriteLine($"Skill Name: {p.Skill}");
+                Console.WriteLine($"Current Level: {p.Level}");
                 Console.WriteLine($"------------------------------");
             }
         }
@@ -173,13 +174,34 @@ namespace PokemonPocket.Services
 
           int totalHealthPercentMissing = 0;
           foreach (Pokemon pokemon in pokemonList) {
-            int healthPercentMissing = (pokemon.MaxHP - pokemon.HP) * 100 / pokemon.MaxHP;
+            int healthPercentMissing = (int)(((double)(pokemon.MaxHP - pokemon.HP) / pokemon.MaxHP) * 100);            
             totalHealthPercentMissing += healthPercentMissing;
           }
 
           int goldRequired = totalHealthPercentMissing / 10;
 
-          Console.WriteLine($"To heal your Pokemon, you need to pay {goldRequired} gold.");
+          Console.Write($"To heal your Pokemon, you need to pay {goldRequired} gold. Would you like to proceed? (y/n): ");
+          string response = Console.ReadLine();
+          response.ToLower();
+
+          while (string.IsNullOrEmpty(response) || (response[0] != 'y' && response[0] != 'n')) {
+            Console.Write($"Your response is not recognised, please try again: ");
+            response = Console.ReadLine();
+            response.ToLower();
+          }
+
+          if (response[0] == 'y') {
+            Player player = this._context.Players.First();
+            if (player.Gold >= goldRequired) {
+              player.Gold -= goldRequired;
+              foreach (Pokemon pokemon in pokemonList) {
+                pokemon.Heal();
+              }
+              Console.WriteLine("Your Pokemon have been healed!");
+              this._context.SaveChanges();
+            }
+            else Console.WriteLine("You do not have enough gold, please come back when you gather more");
+          }
 
         }
 
