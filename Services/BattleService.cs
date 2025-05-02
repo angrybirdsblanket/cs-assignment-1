@@ -28,7 +28,33 @@ namespace PokemonPocket.Services
           .First();
         player.Gold += goldGain;
       }
+
+      var levelablePokemon = this._context.Pokemon
+        .Where(p => p.Exp >= 100)
+        .ToList();
+
+      foreach(Pokemon pokemon in levelablePokemon) {
+        pokemon.LevelUp();
+      }
+  
+      this._context.SaveChanges(); 
+
       return success ? wild : null;
+    }
+
+    private void CalculateExp(Pokemon enemy, Pokemon attacker, int damageDealt)
+    {
+      const int BaseExp = 50;                   
+      double damageRatio  = (double)damageDealt / enemy.MaxHP;
+      double rawXp        = damageRatio * BaseExp;
+
+      
+      int xpGained = (int)Math.Floor(rawXp);
+      if (damageDealt > 0 && xpGained < 1)
+        xpGained = 1;
+
+      attacker.Exp += xpGained;
+      this._context.SaveChanges();
     }
 
     private Pokemon GenerateRandomPokemon()
@@ -119,12 +145,13 @@ namespace PokemonPocket.Services
     private void ExecuteBattleRound(Pokemon attacker, Pokemon wild)
     {
       int damage = attacker.Attack(wild);
-      Console.WriteLine($"{attacker.Name} attacked {wild.Name} for {damage} damage and left it with {wild.HP} HP!");
+      CalculateExp(wild, attacker, damage);
+      Console.WriteLine($"Your {attacker.Name} attacked the wild {wild.Name} for {damage} damage and left it with {wild.HP} HP!");
 
       if (wild.HP > 0)
       {
         damage = wild.Attack(attacker);
-        Console.WriteLine($"{wild.Name} attacked {attacker.Name} for {damage} damage and left it with {attacker.HP} HP!");
+        Console.WriteLine($"The wild {wild.Name} attacked your {attacker.Name} for {damage} damage and left it with {attacker.HP} HP!");
       }
     }
 
@@ -137,10 +164,10 @@ namespace PokemonPocket.Services
         if (pocket.Count == 0)
         {
           Console.WriteLine("You have no more Pokémon left. The wild Pokémon fled.");
-          return true; // end battle
+          return true; 
         }
         selection = SelectPokemon(pocket);
-        return true; // skip rest of loop
+        return true; 
       }
       return false;
     }
@@ -176,6 +203,7 @@ namespace PokemonPocket.Services
 
           if (!string.IsNullOrEmpty(input) && input[0] == 'y')
           {
+            if (wild.HP == 0) Console.WriteLine($"The wild {wild.Name} has already fainted and cannot be caught");
             if (AttemptCatch(wild, maxHp))
             {
               double healthPercentage = (double)wild.HP / maxHp;

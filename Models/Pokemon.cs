@@ -33,6 +33,7 @@ namespace PokemonPocket.Models
             this.Exp = exp;
             this.Skill = skill;
             this.SkillDamage = skillDamage;
+            this.Level = 1;
         }
 
         public int Attack(Pokemon defender)
@@ -40,7 +41,7 @@ namespace PokemonPocket.Models
             double multiplier = Max(this._random.NextDouble(), 0.5);
             int damage = Convert.ToInt32(this.SkillDamage * this.GetDamageMultiplier() * multiplier);
 
-            defender.HP = Max(0, defender.HP - damage * this.GetDamageMultiplier());
+            defender.HP = Max(0, defender.HP - damage);
             return damage;
         }
 
@@ -51,6 +52,8 @@ namespace PokemonPocket.Models
         public void LevelUp() {
           this.Exp -= 100;
           this.Level += 1;
+          this.MaxHP += 20;
+          this.HP = this.MaxHP;
           this.SkillDamage += 5;
 
           Console.WriteLine($"{this.Name} has leveled up to level {this.Level}!");
