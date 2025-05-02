@@ -106,26 +106,22 @@ namespace PokemonPocket.Services
 
         private void evolveEligiblePokemon()
         {
-            // Load all the evolution rules
             var rules = _context.EvolutionRules
               .ToList();
 
-            foreach (var rule in rules)
+            foreach (PokemonMaster rule in rules)
             {
-                // Get all Pokémon matching the base name, highest Exp first
-                var pocket = _context.Pokemon
+                List<Pokemon> pocket = this._context.Pokemon
                   .Where(p => p.Name == rule.Name)
                   .OrderByDescending(p => p.Exp)
                   .ToList();
 
-                // How many full groups of NoToEvolve we have
                 int fullGroups = pocket.Count / rule.NoToEvolve;
 
-                for (int g = 0; g < fullGroups; g++)
+                for (int i = 0; i < fullGroups; i++)
                 {
-                    // Take exactly rule.NoToEvolve from the top
                     var batch = pocket
-                      .Skip(g * rule.NoToEvolve)
+                      .Skip(i * rule.NoToEvolve)
                       .Take(rule.NoToEvolve)
                       .ToList();
 
