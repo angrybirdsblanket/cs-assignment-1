@@ -13,9 +13,11 @@ namespace PokemonPocket
 
       using PokemonPocketContext context = new PokemonPocketContext();
       BattleService battles = new BattleService(context);
-      PokemonService service = new PokemonService(context, battles);
+      GymService gyms = new GymService(context);
+      PokemonService service = new PokemonService(context, battles, gyms);
 
       service.InitialiseEvoRules();
+      gyms.InitialiseGyms();
 
       /* there will always be one player
          if no player is found, the below if statement will generate one and add to the database*/
@@ -32,7 +34,7 @@ namespace PokemonPocket
       while (running)
       {
         running = service.GetNextAction();
-        Console.WriteLine();
+        if (running) Console.WriteLine();
       }
       Environment.Exit(0);
 

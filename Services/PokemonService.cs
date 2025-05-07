@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PokemonPocket.Data;
 using PokemonPocket.Models;
+using Microsoft.EntityFrameworkCore;
 namespace PokemonPocket.Services
 
 {
@@ -11,11 +12,13 @@ namespace PokemonPocket.Services
   {
     private readonly PokemonPocketContext _context;
     private readonly BattleService _battles;
+    private readonly GymService _gyms;
 
-    public PokemonService(PokemonPocketContext context, BattleService battles)
+    public PokemonService(PokemonPocketContext context, BattleService battles, GymService gyms)
     {
       this._context = context;
       this._battles = battles;
+      this._gyms = gyms;
     }
 
     private void addPokemon()
@@ -24,7 +27,7 @@ namespace PokemonPocket.Services
       Console.Write("Enter Pokemon's Name: ");
       string name = Console.ReadLine();
 
-      if (!new[] { "pikachu", "eevee", "charmander" }.Contains(name.ToLower()))
+      if (!new[] { "pikachu", "eevee", "charmander", "bulbasaur"}.Contains(name.ToLower()))
       {
         Console.WriteLine("Pokemon not recognised.");
         return;
@@ -66,9 +69,7 @@ namespace PokemonPocket.Services
 
     private void listPokemon()
     {
-      var pokemon = this._context.Pokemon
-        .OrderByDescending(p => p.Exp)
-        .ToList();
+      var pokemon = PokemonService.GetPlayerPokemon(this._context);
 
       if (pokemon.Count == 0)
       {
@@ -90,18 +91,23 @@ namespace PokemonPocket.Services
     {
       List<PokemonMaster> rules = this._context.EvolutionRules
         .ToList();
+      bool eligibleEvolutions = false;
       foreach (PokemonMaster rule in rules)
       {
-        var list = this._context.Pokemon
+        var list = PokemonService.GetPlayerPokemon(this._context)
           .Where(p => p.Name == rule.Name)
           .ToList();
 
         if (list.Count >= rule.NoToEvolve)
         {
+          eligibleEvolutions = true;
           int eligibleCount = list.Count / rule.NoToEvolve * rule.NoToEvolve;
 
           Console.WriteLine($"{eligibleCount} {rule.Name} ---> {eligibleCount / rule.NoToEvolve} {rule.EvolveTo}");
         }
+      }
+      if (!eligibleEvolutions) {
+        Console.WriteLine("You currently have no eligible pokemon for evolution");
       }
     }
 
@@ -113,7 +119,8 @@ namespace PokemonPocket.Services
       {
         var pocket = _context.Pokemon
           .Where(p => p.Name == rule.Name)
-          .OrderByDescending(p => p.Exp)
+          .OrderByDescending(p => p.MaxHP)
+          .ThenByDescending(p => p.Exp)
           .ToList();
 
         int fullGroups = pocket.Count / rule.NoToEvolve;
@@ -124,7 +131,7 @@ namespace PokemonPocket.Services
             .Take(rule.NoToEvolve)
             .ToList();
 
-          int maxHp = batch.Max(p => p.HP);
+          int maxHp = batch.Max(p => p.MaxHP);
           int maxExp = batch.Max(p => p.Exp);
           int maxLevel = batch.Max(p => p.Level); 
           int maxSkillDamage = batch.Max(p => p.SkillDamage);
@@ -136,6 +143,7 @@ namespace PokemonPocket.Services
             "raichu" => new Raichu { HP = maxHp, Exp = maxExp, Name = "Raichu", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
             "charmeleon" => new Charmeleon { HP = maxHp, Exp = maxExp, Name = "Charmeleon", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
             "flareon" => new Flareon { HP = maxHp, Exp = maxExp, Name = "Flareon", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
+            "ivysaur" => new Ivysaur { HP = maxHp, Exp = maxExp, Name = "Ivysaur", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
             _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
           };
 
@@ -151,8 +159,8 @@ namespace PokemonPocket.Services
         .Where(p => p.Id == 1)
         .First();
 
-      List<Pokemon> healablePokemon = this._context.Pokemon
-        .Where(p => p.MaxHP != p.HP)
+      List<Pokemon> healablePokemon = PokemonService.GetPlayerPokemon(this._context)
+        .Where(p => p.HP != p.MaxHP)
         .ToList();
 
       Console.WriteLine($"You currently have {player.Gold} gold, and {healablePokemon.Count()} of your pokemon currently require healing");
@@ -197,7 +205,7 @@ namespace PokemonPocket.Services
 
     }
 
-    private void drawMenu()
+    private void drawMainMenu()
     {
       Console.WriteLine("*****************************");
       Console.WriteLine("Welcome to Pokemon Pocket App");
@@ -206,48 +214,41 @@ namespace PokemonPocket.Services
       Console.WriteLine("(2). List Pokemon(s) in my Pocket");
       Console.WriteLine("(3). Check if I can evolve my Pokemon");
       Console.WriteLine("(4). Evolve Pokemon");
-      Console.WriteLine("(5). Check your player Statistics");
-      Console.WriteLine("(6). Heal your Pokemon");
-      Console.WriteLine("(7). Fight and catch a Pokemon");
-      Console.Write("Please enter [1,2,3,4,5,6,7] or Q to quit: ");
+      Console.WriteLine("(5). Player Menu");
+      Console.WriteLine("(6). Gym Menu");
+      Console.Write("Please enter [1,2,3,4,5,6] or Q to quit: ");
     }
 
-    public bool GetNextAction()
-    {
-      this.drawMenu();
+    private void drawPlayerMenu() {
+      Console.WriteLine("(1). Check your player Statistics");
+      Console.WriteLine("(2). Heal your Pokemon");
+      Console.WriteLine("(3). Fight and catch a Pokemon");
+      Console.Write("Please enter [1,2,3] or B to go back: ");
+    }
 
-      string input = Console.ReadLine();
+    private bool handlePlayerMenu() {
+      this.drawPlayerMenu();
+      string input;
 
-      if (string.IsNullOrEmpty(input))
-      {
-        Console.WriteLine("Invalid input, please try again");
-        return true;
+      input = Console.ReadLine();
+      while (string.IsNullOrEmpty(input)) {
+        Console.WriteLine("No input was detected, please try again");
+        input = Console.ReadLine();
       }
+      
 
-      char response = input[0];
+      switch (input) {
+        case "1":
+          this.playerStats();
+          return true;
+        case "2": 
+          this.healPokemon();
+          return true;
+        case "3":
 
-      switch (response)
-      {
-        case '1':
-          addPokemon();
-          break;
-        case '2':
-          listPokemon();
-          break;
-        case '3':
-          checkEvolutionStatus();
-          break;
-        case '4':
-          evolveEligiblePokemon();
-          break;
-        case '5':
-          playerStats();
-          break;
-        case '6':
-          healPokemon();
-          break;
-        case '7':
-          if (this._context.Pokemon.Count() > 0)
+          var playerPokemon = PokemonService.GetPlayerPokemon(this._context);
+
+          if (playerPokemon.Count() > 0)
           {
             Pokemon capturedPokemon = this._battles.Capture();
 
@@ -262,11 +263,65 @@ namespace PokemonPocket.Services
           {
             Console.WriteLine("Your Pocket is empty, please come back once you have pokemon inside.");
           }
+
+          return true;
+
+        case "b":
+          return true;
+        default:
+          Console.Clear();
+          Console.WriteLine("An invalid character was detected, please try again");
+          Console.WriteLine();
+          return false;
+      }
+    }
+
+
+    public bool GetNextAction()
+    {
+      this.drawMainMenu();
+
+      string input = Console.ReadLine();
+
+      if (string.IsNullOrEmpty(input))
+      {
+        Console.WriteLine("Invalid input, please try again");
+        return true;
+      }
+
+
+      Console.Clear();
+      switch (input)
+      {
+        case "1":
+          addPokemon();
           break;
-        case 'q':
-        case 'Q':
+        case "2":
+          listPokemon();
+          break;
+        case "3":
+          checkEvolutionStatus();
+          break;
+        case "4":
+          evolveEligiblePokemon();
+          break;
+        case "5":
+          bool playerFinished = false;
+          while (!playerFinished) {
+            playerFinished = handlePlayerMenu();
+          }
+          break;
+        case "6":
+          bool gymFinished = false;
+            while (!gymFinished) {
+              gymFinished = this._gyms.handleGymMenu();
+            }
+          break;
+        case "q":
+        case "Q":
           return false;
         default:
+          Console.WriteLine("An Invalid character was detected, please try again");
           return true;
       }
       return true;
@@ -285,7 +340,6 @@ namespace PokemonPocket.Services
           EvolveTo = "Raichu"
         };
         this._context.EvolutionRules.Add(pikachu);
-        this._context.SaveChanges();
       }
 
       var eevee_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Eevee");
@@ -298,7 +352,6 @@ namespace PokemonPocket.Services
           EvolveTo = "Flareon"
         };
         this._context.EvolutionRules.Add(eevee);
-        this._context.SaveChanges();
       }
 
       var charmander_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Charmander");
@@ -311,9 +364,30 @@ namespace PokemonPocket.Services
           EvolveTo = "Charmeleon"
         };
         this._context.EvolutionRules.Add(charmander);
-        this._context.SaveChanges();
+
+
       }
 
+      var bulbasaur_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Bulbasaur");
+      if(!(bulbasaur_query is PokemonMaster)) {
+        PokemonMaster bulbasaur = new PokemonMaster() {
+          Name = "Bulbasaur",
+          NoToEvolve = 5,
+          EvolveTo = "Ivysaur"
+        };
+        this._context.Add(bulbasaur);
+      }
+
+
+      this._context.SaveChanges();
+    }
+
+    public static List<Pokemon> GetPlayerPokemon(PokemonPocketContext context)
+    {
+      return context.Pokemon
+        .Where(p => EF.Property<int?>(p, "GymLeaderId") == null) 
+        .OrderByDescending(p => p.Exp)  
+        .ToList(); 
     }
 
   }

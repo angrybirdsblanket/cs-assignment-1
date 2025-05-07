@@ -52,7 +52,7 @@ namespace PokemonPocket.Models
         public void LevelUp() {
           this.Exp -= 100;
           this.Level += 1;
-          this.MaxHP += 20;
+          this.MaxHP += 50;
           this.HP = this.MaxHP;
           this.SkillDamage += 5;
 

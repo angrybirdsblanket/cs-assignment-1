@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PokemonPocket.Models;
 using PokemonPocket.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace PokemonPocket.Services
 {
@@ -112,6 +113,7 @@ namespace PokemonPocket.Services
     {
       return _context.Pokemon
         .OrderBy(p => p.Id)
+        .Where(p => EF.Property<int?>(p, "GymLeaderId") == null)
         .Where(p => p.HP > 0)
         .ToList();
     }

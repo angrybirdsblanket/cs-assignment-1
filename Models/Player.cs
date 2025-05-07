@@ -1,19 +1,18 @@
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
-namespace PokemonPocket.Models {
+namespace PokemonPocket.Models
+{
+    public class Player
+    {
+        [Key]
+        public int Id { get; set; }
+        public int Gold { get; set; }
+        public ICollection<Badge> Badges { get; set; } = new List<Badge>();
 
-  public class Player {
-
-    [Key]
-    public int Id { get; set; }
-    public int Gold { get; set; }
-    public ICollection<Badge> Badges { get; set; } = null!;
-
-    public Player() {
-      this.Gold = 10;
+        public Player()
+        {
+            this.Gold = 10;
+        }
     }
-
-  }
-
 }
