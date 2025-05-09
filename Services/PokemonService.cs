@@ -24,21 +24,6 @@ namespace PokemonPocket.Services
 
         private void addPokemon()
         {
-
-            // Console.Write("Enter Pokemon's Name: ");
-            // string name = Console.ReadLine();
-            //
-            // if (!new[] { "pikachu", "eevee", "charmander", "bulbasaur" }.Contains(name.ToLower()))
-            // {
-            //     Console.WriteLine("Pokemon not recognised.");
-            //     return;
-            // }
-            //
-            // Console.Write("Enter Pokemon's HP: ");
-            // int hp = Int32.Parse(Console.ReadLine());
-            //
-            // Console.Write("Enter Pokemon's Exp: ");
-            // int exp = Int32.Parse(Console.ReadLine());
           var name = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
               .Title("Choose Pokemon: ")
@@ -50,19 +35,33 @@ namespace PokemonPocket.Services
                 "Bulbasaur"
                   }));
 
-            int hp = AnsiConsole.Prompt(
-                new TextPrompt<int>("Enter Pokemon's HP: ")
-                .ValidationErrorMessage("HP must be a positive number")
-                .Validate(value => value > 0 ? ValidationResult.Success() : 
-                  ValidationResult.Error("HP must be greater than 0"))
-                );
+          int hp = AnsiConsole.Prompt(
+              new TextPrompt<int>("Enter Pokemon's HP: ")
+              .ValidationErrorMessage("HP must be between 1 and 300")
+              .Validate(value => 
+                {
+                if (value <= 0)
+                return ValidationResult.Error("HP must be greater than 0");
+                if (value > 300)
+                return ValidationResult.Error("HP cannot exceed 300");
 
-            int exp = AnsiConsole.Prompt(
-                new TextPrompt<int>("Enter Pokemon's Exp: ")
-                .ValidationErrorMessage("Experience must be a non-negative number")
-                .Validate(value => value >= 0 ? ValidationResult.Success() : 
-                  ValidationResult.Error("Experience cannot be negative"))
-                );
+                return ValidationResult.Success();
+                })
+              );
+
+          int exp = AnsiConsole.Prompt(
+              new TextPrompt<int>("Enter Pokemon's Exp: ")
+              .ValidationErrorMessage("Experience must be between 0 and 50")
+              .Validate(value => 
+                {
+                if (value < 0)
+                return ValidationResult.Error("Experience cannot be negative");
+                if (value > 50)
+                return ValidationResult.Error("Experience cannot exceed 50");
+
+                return ValidationResult.Success();
+                })
+              );
 
             switch (name.ToLower())
             {
