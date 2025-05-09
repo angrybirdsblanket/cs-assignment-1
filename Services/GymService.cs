@@ -60,12 +60,8 @@ namespace PokemonPocket.Services
                     return true;
                 case "b":
                     return true;
-                default:
-                    Console.Clear();
-                    Console.WriteLine("An invalid character was detected, please try again");
-                    Console.WriteLine();
-                    return false;
             }
+            return true; // code will never reach here due to spectre console prompts, but the compiler requires it
         }
 
         public void InitialiseGyms()

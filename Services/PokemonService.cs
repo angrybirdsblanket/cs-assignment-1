@@ -25,20 +25,44 @@ namespace PokemonPocket.Services
         private void addPokemon()
         {
 
-            Console.Write("Enter Pokemon's Name: ");
-            string name = Console.ReadLine();
+            // Console.Write("Enter Pokemon's Name: ");
+            // string name = Console.ReadLine();
+            //
+            // if (!new[] { "pikachu", "eevee", "charmander", "bulbasaur" }.Contains(name.ToLower()))
+            // {
+            //     Console.WriteLine("Pokemon not recognised.");
+            //     return;
+            // }
+            //
+            // Console.Write("Enter Pokemon's HP: ");
+            // int hp = Int32.Parse(Console.ReadLine());
+            //
+            // Console.Write("Enter Pokemon's Exp: ");
+            // int exp = Int32.Parse(Console.ReadLine());
+          var name = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+              .Title("Choose Pokemon: ")
+              .PageSize(10)
+              .AddChoices(new[] {
+                "Pikachu",
+                "Eevee",
+                "Charmander",
+                "Bulbasaur"
+                  }));
 
-            if (!new[] { "pikachu", "eevee", "charmander", "bulbasaur" }.Contains(name.ToLower()))
-            {
-                Console.WriteLine("Pokemon not recognised.");
-                return;
-            }
+            int hp = AnsiConsole.Prompt(
+                new TextPrompt<int>("Enter Pokemon's HP: ")
+                .ValidationErrorMessage("HP must be a positive number")
+                .Validate(value => value > 0 ? ValidationResult.Success() : 
+                  ValidationResult.Error("HP must be greater than 0"))
+                );
 
-            Console.Write("Enter Pokemon's HP: ");
-            int hp = Int32.Parse(Console.ReadLine());
-
-            Console.Write("Enter Pokemon's Exp: ");
-            int exp = Int32.Parse(Console.ReadLine());
+            int exp = AnsiConsole.Prompt(
+                new TextPrompt<int>("Enter Pokemon's Exp: ")
+                .ValidationErrorMessage("Experience must be a non-negative number")
+                .Validate(value => value >= 0 ? ValidationResult.Success() : 
+                  ValidationResult.Error("Experience cannot be negative"))
+                );
 
             switch (name.ToLower())
             {
@@ -148,7 +172,7 @@ namespace PokemonPocket.Services
                         "ivysaur" => new Ivysaur { HP = maxHp, Exp = maxExp, Name = "Ivysaur", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
                         _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
                     };
-
+                    this._context.Add(evolved);
                 }
             }
 
