@@ -1,4 +1,5 @@
 using System;
+using Spectre.Console;
 using static System.Math;
 using System.Collections.Generic;
 using System.Linq;
@@ -212,18 +213,33 @@ namespace PokemonPocket.Services
 
         }
 
-        private void drawMainMenu()
+        private string drawMainMenu()
         {
-            Console.WriteLine("*****************************");
-            Console.WriteLine("Welcome to Pokemon Pocket App");
-            Console.WriteLine("*****************************");
-            Console.WriteLine("(1). Add Pokemon to my Pocket");
-            Console.WriteLine("(2). List Pokemon(s) in my Pocket");
-            Console.WriteLine("(3). Check if I can evolve my Pokemon");
-            Console.WriteLine("(4). Evolve Pokemon");
-            Console.WriteLine("(5). Player Menu");
-            Console.WriteLine("(6). Gym Menu");
-            Console.Write("Please enter [1,2,3,4,5,6] or Q to quit: ");
+            // Console.WriteLine("*****************************");
+            // Console.WriteLine("Welcome to Pokemon Pocket App");
+            // Console.WriteLine("*****************************");
+            // Console.WriteLine("(1). Add Pokemon to my Pocket");
+            // Console.WriteLine("(2). List Pokemon(s) in my Pocket");
+            // Console.WriteLine("(3). Check if I can evolve my Pokemon");
+            // Console.WriteLine("(4). Evolve Pokemon");
+            // Console.WriteLine("(5). Player Menu");
+            // Console.WriteLine("(6). Gym Menu");
+            // Console.Write("Please enter [1,2,3,4,5,6] or Q to quit: ");
+          var selection = AnsiConsole.Prompt(
+              new SelectionPrompt<string>()
+              .Title("Welcome to Pokemon Pocket App")
+              .PageSize(10)
+              .AddChoices(new[] {
+                "Add Pokemon to my Pocket",
+                "List Pokemon(s) in my Pocket",
+                "Check if I can evolve my Pokemon",
+                "Evolve Pokemon",
+                "Player Menu",
+                "Gym Menu",
+                "Exit"
+              }));
+          return selection;
+              
         }
 
         private void drawPlayerMenu()
@@ -236,8 +252,7 @@ namespace PokemonPocket.Services
 
         private bool handlePlayerMenu()
         {
-            this.drawPlayerMenu();
-            string input;
+            string input = this.drawMainMenu();
 
             input = Console.ReadLine();
             while (string.IsNullOrEmpty(input))
@@ -290,52 +305,37 @@ namespace PokemonPocket.Services
 
         public bool GetNextAction()
         {
-            this.drawMainMenu();
-
-            string input = Console.ReadLine();
-
-            if (string.IsNullOrEmpty(input))
-            {
-                Console.WriteLine("Invalid input, please try again");
-                return true;
-            }
-
-
-            Console.Clear();
+          string input = this.drawMainMenu();
             switch (input)
             {
-                case "1":
+                case "Add Pokemon to my Pocket":
                     addPokemon();
                     break;
-                case "2":
+                case "List Pokemon(s) in my Pocket":
                     listPokemon();
                     break;
-                case "3":
+                case "Check if I can evolve my Pokemon":
                     checkEvolutionStatus();
                     break;
-                case "4":
+                case "Evolve Pokemon":
                     evolveEligiblePokemon();
                     break;
-                case "5":
+                case "Player Menu":
                     bool playerFinished = false;
                     while (!playerFinished)
                     {
                         playerFinished = handlePlayerMenu();
                     }
                     break;
-                case "6":
+                case "Gym Menu":
                     bool gymFinished = false;
                     while (!gymFinished)
                     {
                         gymFinished = this._gyms.HandleGymMenu();
                     }
                     break;
-                case "q":
-                case "Q":
+                case "Exit":
                     return false;
-                default:
-                    Console.WriteLine("An Invalid character was detected, please try again");
-                    return true;
             }
             return true;
         }

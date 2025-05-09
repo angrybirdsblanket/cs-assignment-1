@@ -38,7 +38,6 @@ namespace PokemonPocket
             while (running)
             {
                 running = service.GetNextAction();
-                if (running) Console.WriteLine();
             }
             Environment.Exit(0);
 
