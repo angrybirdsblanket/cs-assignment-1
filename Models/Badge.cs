@@ -8,12 +8,12 @@ namespace PokemonPocket.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
-        
+
         public int PlayerId { get; set; }
         public Player Player { get; set; }
 
         public Badge() { }
-        
+
         public Badge(string name, string type, int playerId, Player player)
         {
             this.Name = name;

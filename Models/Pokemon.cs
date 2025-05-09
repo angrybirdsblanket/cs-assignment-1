@@ -45,18 +45,20 @@ namespace PokemonPocket.Models
             return damage;
         }
 
-        public void Heal() {
-          this.HP = this.MaxHP;
+        public void Heal()
+        {
+            this.HP = this.MaxHP;
         }
 
-        public void LevelUp() {
-          this.Exp -= 100;
-          this.Level += 1;
-          this.MaxHP += 50;
-          this.HP = this.MaxHP;
-          this.SkillDamage += 5;
+        public void LevelUp()
+        {
+            this.Exp -= 100;
+            this.Level += 1;
+            this.MaxHP += 50;
+            this.HP = this.MaxHP;
+            this.SkillDamage += 5;
 
-          Console.WriteLine($"{this.Name} has leveled up to level {this.Level}!");
+            Console.WriteLine($"{this.Name} has leveled up to level {this.Level}!");
         }
 
         protected abstract int GetDamageMultiplier();

@@ -7,10 +7,10 @@ namespace PokemonPocket.Models
     {
         [Key]
         public int Id { get; set; }
-        
+
         public string GymName { get; set; } = string.Empty;
-        
-        public List<Pokemon> PokemonTeam { get; set; } 
+
+        public List<Pokemon> PokemonTeam { get; set; }
 
         public string BadgeName { get; set; }
 
