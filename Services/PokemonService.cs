@@ -148,6 +148,7 @@ namespace PokemonPocket.Services
                         _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
                     };
 
+                    this._context.Add(evolved);
                 }
             }
 
