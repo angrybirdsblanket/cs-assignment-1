@@ -87,6 +87,11 @@ namespace PokemonPocket.Services
                     this._context.Add(eevee);
 
                     break;
+                case "bulbasaur":
+                    Bulbasaur bulbasaur = new Bulbasaur(hp, exp);
+
+                    this._context.Add(bulbasaur);
+                    break;
             }
 
             this._context.SaveChanges();
