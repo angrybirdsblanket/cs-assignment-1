@@ -12,6 +12,10 @@ namespace PokemonPocket.Models
         
         public List<Pokemon> PokemonTeam { get; set; } 
 
-        public string BadgeName;
+        public string BadgeName { get; set; }
+
+        public bool Defeated { get; set; }
+
+        public string TrainerName { get; set; }
     }
 }

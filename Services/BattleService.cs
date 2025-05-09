@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using PokemonPocket.Models;
 using PokemonPocket.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace PokemonPocket.Services
 {
@@ -30,7 +29,7 @@ namespace PokemonPocket.Services
         player.Gold += goldGain;
       }
 
-      var levelablePokemon = this._context.Pokemon
+      var levelablePokemon = PokemonService.GetPlayerPokemon(this._context)        
         .Where(p => p.Exp >= 100)
         .ToList();
 
@@ -111,9 +110,8 @@ namespace PokemonPocket.Services
 
     private List<Pokemon> GetAvailablePokemon()
     {
-      return _context.Pokemon
+      return PokemonService.GetPlayerPokemon(this._context)
         .OrderBy(p => p.Id)
-        .Where(p => EF.Property<int?>(p, "GymLeaderId") == null)
         .Where(p => p.HP > 0)
         .ToList();
     }

@@ -117,7 +117,7 @@ namespace PokemonPocket.Services
 
       foreach (var rule in rules)
       {
-        var pocket = _context.Pokemon
+        var pocket = PokemonService.GetPlayerPokemon(this._context)
           .Where(p => p.Name == rule.Name)
           .OrderByDescending(p => p.MaxHP)
           .ThenByDescending(p => p.Exp)
@@ -136,7 +136,7 @@ namespace PokemonPocket.Services
           int maxLevel = batch.Max(p => p.Level); 
           int maxSkillDamage = batch.Max(p => p.SkillDamage);
 
-          this._context.Pokemon.RemoveRange(batch);
+          this._context.RemoveRange(batch);
 
           Pokemon evolved = rule.EvolveTo.ToLower() switch
           {
@@ -147,7 +147,6 @@ namespace PokemonPocket.Services
             _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
           };
 
-          this._context.Pokemon.Add(evolved);
         }
       }
 
@@ -167,7 +166,7 @@ namespace PokemonPocket.Services
     }
 
     private void healPokemon() {
-      var pokemonList = this._context.Pokemon
+      var pokemonList = PokemonService.GetPlayerPokemon(this._context)
         .OrderBy(p => p.Id)
         .Where(p => p.HP != p.MaxHP)
         .ToList();
@@ -314,8 +313,11 @@ namespace PokemonPocket.Services
         case "6":
           bool gymFinished = false;
             while (!gymFinished) {
-              gymFinished = this._gyms.handleGymMenu();
+              gymFinished = this._gyms.HandleGymMenu();
             }
+          break;
+        case "7":
+          testPokemon();
           break;
         case "q":
         case "Q":
@@ -388,6 +390,42 @@ namespace PokemonPocket.Services
         .Where(p => EF.Property<int?>(p, "GymLeaderId") == null) 
         .OrderByDescending(p => p.Exp)  
         .ToList(); 
+    }
+
+    private void testPokemon() {
+      var pikachu = new Pikachu() {
+        Name = "Pikachu",
+        HP = 1000,
+        MaxHP = 1000,
+        Exp = 0,
+        Skill = "Lightning Bolt",
+        SkillDamage = 100,
+        Level = 40
+      };
+
+      var bulbasaur = new Bulbasaur() {
+        Name = "Bulbasaur",
+        HP = 1000,
+        MaxHP = 1000,
+        Exp = 0,
+        Skill = "Verdant Spiral",
+        SkillDamage = 100,
+        Level = 40
+      };
+
+      var eevee = new Eevee() {
+        Name = "Eevee",
+        HP = 1000,
+        MaxHP = 1000,
+        Exp = 0,
+        Skill = "Run Away",
+        SkillDamage = 100,
+        Level = 40
+      };
+
+      this._context.AddRange(pikachu, eevee, bulbasaur);
+      this._context.SaveChanges();
+
     }
 
   }

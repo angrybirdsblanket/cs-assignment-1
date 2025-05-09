@@ -12,6 +12,9 @@ namespace PokemonPocket
     {
 
       using PokemonPocketContext context = new PokemonPocketContext();
+
+      context.Database.EnsureCreated();
+
       BattleService battles = new BattleService(context);
       GymService gyms = new GymService(context);
       PokemonService service = new PokemonService(context, battles, gyms);
