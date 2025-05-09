@@ -426,5 +426,6 @@ namespace PokemonPocket.Services
                 Console.WriteLine($"The trainer's {leaderPokemon.Name} attacked your {attacker.Name} for {damage} damage and left it with {attacker.HP} HP!");
             }
         }
+
     }
 }

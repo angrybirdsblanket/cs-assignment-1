@@ -94,6 +94,10 @@ namespace PokemonPocket.Services
             }
 
             this._context.SaveChanges();
+
+            AnsiConsole.WriteLine("Pokemon successfully added!");
+
+            this.continueToMenu();
         }
 
         private void listPokemon()
@@ -102,18 +106,19 @@ namespace PokemonPocket.Services
 
             if (pokemon.Count == 0)
             {
-                Console.WriteLine("Your Pocket is empty");
+              AnsiConsole.WriteLine("You currently have no pokemon in your pocket");
             }
 
             foreach (var p in pokemon)
             {
-                Console.WriteLine($"Name: {p.Name}");
-                Console.WriteLine($"HP: {p.HP}");
-                Console.WriteLine($"Exp: {p.Exp}");
-                Console.WriteLine($"Skill Name: {p.Skill}");
-                Console.WriteLine($"Current Level: {p.Level}");
-                Console.WriteLine($"------------------------------");
+                AnsiConsole.WriteLine($"Name: {p.Name}");
+                AnsiConsole.WriteLine($"HP: {p.HP}");
+                AnsiConsole.WriteLine($"Exp: {p.Exp}");
+                AnsiConsole.WriteLine($"Skill Name: {p.Skill}");
+                AnsiConsole.WriteLine($"Current Level: {p.Level}");
+                AnsiConsole.WriteLine($"------------------------------");
             }
+            this.continueToMenu();
         }
 
         private void checkEvolutionStatus()
@@ -471,6 +476,14 @@ namespace PokemonPocket.Services
             this._context.AddRange(pikachu, eevee, bulbasaur);
             this._context.SaveChanges();
 
+        }
+
+        private void continueToMenu() {
+            AnsiConsole.Prompt<string>(
+                new TextPrompt<string>("Press enter to continue...")
+                .AllowEmpty()
+                );
+            AnsiConsole.Clear();
         }
 
     }
