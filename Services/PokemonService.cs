@@ -32,8 +32,11 @@ namespace PokemonPocket.Services
                 "Pikachu",
                 "Eevee",
                 "Charmander",
-                "Bulbasaur"
+                "Bulbasaur",
+                "Go Back"
                   }));
+
+          if (name == "Go Back") return;
 
           int hp = AnsiConsole.Prompt(
               new TextPrompt<int>("Enter Pokemon's HP: ")
@@ -137,12 +140,12 @@ namespace PokemonPocket.Services
                     eligibleEvolutions = true;
                     int eligibleCount = list.Count / rule.NoToEvolve * rule.NoToEvolve;
 
-                    Console.WriteLine($"{eligibleCount} {rule.Name} ---> {eligibleCount / rule.NoToEvolve} {rule.EvolveTo}");
+                    AnsiConsole.WriteLine($"{eligibleCount} {rule.Name} ---> {eligibleCount / rule.NoToEvolve} {rule.EvolveTo}");
                 }
             }
             if (!eligibleEvolutions)
             {
-                Console.WriteLine("You currently have no eligible pokemon for evolution");
+                AnsiConsole.WriteLine("You currently have no eligible pokemon for evolution");
             }
         }
 
