@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PokemonPocket.Models;
 using PokemonPocket.Data;
+using Spectre.Console;
 
 namespace PokemonPocket.Services
 {
@@ -79,7 +80,7 @@ namespace PokemonPocket.Services
             bool success = false;
             int maxHp = wild.HP;
 
-            Console.WriteLine($"\nA wild {wild.Name} with {maxHp} HP appeared!");
+            AnsiConsole.WriteLine($"\nA wild {wild.Name} with {maxHp} HP appeared!");
 
             List<Pokemon> pocket = GetAvailablePokemon();
 
@@ -120,30 +121,18 @@ namespace PokemonPocket.Services
 
         private int SelectPokemon(List<Pokemon> pocket)
         {
-            int selection = -1;
+          var selectedPokemon = AnsiConsole.Prompt(
+              new SelectionPrompt<Pokemon>()
+              .Title("Choose a Pokémon from your pocket:")
+              .PageSize(10)
+              .AddChoices(pocket)
+              .UseConverter(p => $"{p.Name}, {p.HP} HP, {p.Exp} Exp")
+              );
 
-            while (selection < 0 || selection >= pocket.Count)
-            {
-                Console.WriteLine("Choose a Pokémon from your pocket:");
-                for (int i = 0; i < pocket.Count; i++)
-                {
-                    var p = pocket[i];
-                    Console.WriteLine($"{i}: --> {p.Name}, {p.HP} HP, {p.Exp} Exp");
-                }
+          int selection = pocket.IndexOf(selectedPokemon);
 
-                Console.Write("Your choice: ");
-                string input = Console.ReadLine();
-
-                if (!int.TryParse(input, out selection) || selection < 0 || selection >= pocket.Count)
-                {
-                    Console.WriteLine("Invalid selection. Please try again.");
-                    selection = -1;
-                }
-            }
-
-            return selection;
+          return selection; 
         }
-
         private void ExecuteBattleRound(Pokemon attacker, Pokemon wild)
         {
             int damage = attacker.Attack(wild);
