@@ -80,15 +80,14 @@ namespace PokemonPocket.Services
                     Charmander charmander = new Charmander(hp, exp);
 
                     this._context.Add(charmander);
-
                     break;
 
                 case "eevee":
                     Eevee eevee = new Eevee(hp, exp);
 
                     this._context.Add(eevee);
-
                     break;
+
                 case "bulbasaur":
                     Bulbasaur bulbasaur = new Bulbasaur(hp, exp);
 
@@ -100,7 +99,7 @@ namespace PokemonPocket.Services
 
             AnsiConsole.WriteLine("Pokemon successfully added!");
 
-            this.continueToMenu();
+            PokemonService.ContinueToMenu();
         }
 
         private void listPokemon()
@@ -121,7 +120,7 @@ namespace PokemonPocket.Services
                 AnsiConsole.WriteLine($"Current Level: {p.Level}");
                 AnsiConsole.WriteLine($"------------------------------");
             }
-            this.continueToMenu();
+            PokemonService.ContinueToMenu();
         }
 
         private void checkEvolutionStatus()
@@ -147,6 +146,9 @@ namespace PokemonPocket.Services
             {
                 AnsiConsole.WriteLine("You currently have no eligible pokemon for evolution");
             }
+
+            PokemonService.ContinueToMenu();
+            
         }
 
         private void evolveEligiblePokemon()
@@ -182,7 +184,7 @@ namespace PokemonPocket.Services
                         "charmeleon" => new Charmeleon { HP = maxHp, Exp = maxExp, Name = "Charmeleon", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
                         "flareon" => new Flareon { HP = maxHp, Exp = maxExp, Name = "Flareon", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
                         "ivysaur" => new Ivysaur { HP = maxHp, Exp = maxExp, Name = "Ivysaur", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
-                        _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
+                        _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}") // here to suppress compiler warning
                     };
                     this._context.Add(evolved);
                 }
@@ -201,7 +203,10 @@ namespace PokemonPocket.Services
               .Where(p => p.HP != p.MaxHP)
               .ToList();
 
-            Console.WriteLine($"You currently have {player.Gold} gold, and {healablePokemon.Count()} of your pokemon currently require healing");
+            AnsiConsole.WriteLine($"You currently have {player.Gold} gold, and {healablePokemon.Count()} of your pokemon currently require healing");
+            AnsiConsole.WriteLine($"You also have {player.Badges.Count()} badges");
+
+            PokemonService.ContinueToMenu();
         }
 
         private void healPokemon()
@@ -211,56 +216,51 @@ namespace PokemonPocket.Services
               .Where(p => p.HP != p.MaxHP)
               .ToList();
 
-            int totalHealthPercentMissing = 0;
-            foreach (Pokemon pokemon in pokemonList)
-            {
-                int healthPercentMissing = (int)(((double)(pokemon.MaxHP - pokemon.HP) / pokemon.MaxHP) * 100);
-                totalHealthPercentMissing += healthPercentMissing;
+            if (pokemonList.Count() >= 1) {
+              int totalHealthPercentMissing = 0;
+              foreach (Pokemon pokemon in pokemonList)
+              {
+                  int healthPercentMissing = (int)(((double)(pokemon.MaxHP - pokemon.HP) / pokemon.MaxHP) * 100);
+                  totalHealthPercentMissing += healthPercentMissing;
+              }
+
+              int goldRequired = Max(totalHealthPercentMissing / 10, 1);
+
+              var response = AnsiConsole.Prompt(
+                  new SelectionPrompt<string>()
+                    .Title($"To heal your Pokemon, you need to pay {goldRequired} gold. Would you like to proceed?")
+                    .PageSize(10)
+                    .AddChoices(new[] {
+                      "y",
+                      "n"
+                    }));
+
+
+              if (response == "y")
+              {
+                  Player player = this._context.Players.First();
+                  if (player.Gold >= goldRequired)
+                  {
+                      player.Gold -= goldRequired;
+                      foreach (Pokemon pokemon in pokemonList)
+                      {
+                          pokemon.Heal();
+                      }
+                      AnsiConsole.WriteLine("Your Pokemon have been healed!");
+                      this._context.SaveChanges();
+                  }
+                  else AnsiConsole.WriteLine("You do not have enough gold, please come back when you gather more");
+              }
+              else return;
             }
+            else AnsiConsole.WriteLine("All your pokemon are currently at max health!");
 
-            int goldRequired = Max(totalHealthPercentMissing / 10, 1);
-
-            Console.Write($"To heal your Pokemon, you need to pay {goldRequired} gold. Would you like to proceed? (y/n): ");
-            string response = Console.ReadLine();
-            response.ToLower();
-
-            while (string.IsNullOrEmpty(response) || (response[0] != 'y' && response[0] != 'n'))
-            {
-                Console.Write($"Your response is not recognised, please try again: ");
-                response = Console.ReadLine();
-                response.ToLower();
-            }
-
-            if (response[0] == 'y')
-            {
-                Player player = this._context.Players.First();
-                if (player.Gold >= goldRequired)
-                {
-                    player.Gold -= goldRequired;
-                    foreach (Pokemon pokemon in pokemonList)
-                    {
-                        pokemon.Heal();
-                    }
-                    Console.WriteLine("Your Pokemon have been healed!");
-                    this._context.SaveChanges();
-                }
-                else Console.WriteLine("You do not have enough gold, please come back when you gather more");
-            }
+            PokemonService.ContinueToMenu();
 
         }
 
         private string drawMainMenu()
         {
-            // Console.WriteLine("*****************************");
-            // Console.WriteLine("Welcome to Pokemon Pocket App");
-            // Console.WriteLine("*****************************");
-            // Console.WriteLine("(1). Add Pokemon to my Pocket");
-            // Console.WriteLine("(2). List Pokemon(s) in my Pocket");
-            // Console.WriteLine("(3). Check if I can evolve my Pokemon");
-            // Console.WriteLine("(4). Evolve Pokemon");
-            // Console.WriteLine("(5). Player Menu");
-            // Console.WriteLine("(6). Gym Menu");
-            // Console.Write("Please enter [1,2,3,4,5,6] or Q to quit: ");
           var selection = AnsiConsole.Prompt(
               new SelectionPrompt<string>()
               .Title("Welcome to Pokemon Pocket App")
@@ -278,35 +278,34 @@ namespace PokemonPocket.Services
               
         }
 
-        private void drawPlayerMenu()
+        private string drawPlayerMenu()
         {
-            Console.WriteLine("(1). Check your player Statistics");
-            Console.WriteLine("(2). Heal your Pokemon");
-            Console.WriteLine("(3). Fight and catch a Pokemon");
-            Console.Write("Please enter [1,2,3] or B to go back: ");
+          var selection = AnsiConsole.Prompt(
+              new SelectionPrompt<string>()
+              .Title("Welcome to Pokemon Pocket App")
+              .PageSize(10)
+              .AddChoices(new[] {
+                "Check your player Statistics",
+                "Heal your Pokemon",
+                "Fight and catch a Pokemon",
+                "Go Back"
+              }));
+          return selection;
         }
 
         private bool handlePlayerMenu()
         {
-            string input = this.drawMainMenu();
-
-            input = Console.ReadLine();
-            while (string.IsNullOrEmpty(input))
-            {
-                Console.WriteLine("No input was detected, please try again");
-                input = Console.ReadLine();
-            }
-
+            string input = this.drawPlayerMenu();
 
             switch (input)
             {
-                case "1":
+                case "Check your player Statistics":
                     this.playerStats();
                     return true;
-                case "2":
+                case "Heal your Pokemon":
                     this.healPokemon();
                     return true;
-                case "3":
+                case "Fight and catch a Pokemon":
 
                     var playerPokemon = PokemonService.GetPlayerPokemon(this._context);
 
@@ -328,14 +327,10 @@ namespace PokemonPocket.Services
 
                     return true;
 
-                case "b":
-                    return true;
-                default:
-                    Console.Clear();
-                    Console.WriteLine("An invalid character was detected, please try again");
-                    Console.WriteLine();
+                case "Go Back":
                     return false;
             }
+            return true; // cant be reached, but added to satisfy compiler
         }
 
 
@@ -357,17 +352,17 @@ namespace PokemonPocket.Services
                     evolveEligiblePokemon();
                     break;
                 case "Player Menu":
-                    bool playerFinished = false;
-                    while (!playerFinished)
+                    bool playerNotFinished = true;
+                    while (playerNotFinished)
                     {
-                        playerFinished = handlePlayerMenu();
+                        playerNotFinished = handlePlayerMenu();
                     }
                     break;
                 case "Gym Menu":
-                    bool gymFinished = false;
-                    while (!gymFinished)
+                    bool gymNotFinished = true;
+                    while (!gymNotFinished)
                     {
-                        gymFinished = this._gyms.HandleGymMenu();
+                        gymNotFinished = this._gyms.HandleGymMenu();
                     }
                     break;
                 case "Exit":
@@ -481,7 +476,7 @@ namespace PokemonPocket.Services
 
         }
 
-        private void continueToMenu() {
+        private static void ContinueToMenu() {
             AnsiConsole.Prompt<string>(
                 new TextPrompt<string>("Press enter to continue...")
                 .AllowEmpty()
