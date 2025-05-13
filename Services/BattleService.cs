@@ -99,14 +99,14 @@ namespace PokemonPocket.Services
 
                 if (!success && attempts > 0)
                 {
-                    Console.WriteLine($"You have {attempts} attempt(s) left.");
+                    AnsiConsole.WriteLine($"You have {attempts} attempt(s) left.");
                 }
             }
 
             if (attempts == 0)
-                Console.WriteLine($"You have run out of attempts, {wild.Name} has fled");
+                AnsiConsole.WriteLine($"You have run out of attempts, {wild.Name} has fled");
             else if (wild.HP == 0)
-                Console.WriteLine($"{wild.Name} has fainted");
+                AnsiConsole.WriteLine($"{wild.Name} has fainted");
 
             return success;
         }
@@ -137,12 +137,12 @@ namespace PokemonPocket.Services
         {
             int damage = attacker.Attack(wild);
             CalculateExp(wild, attacker, damage);
-            Console.WriteLine($"Your {attacker.Name} attacked the wild {wild.Name} for {damage} damage and left it with {wild.HP} HP!");
+            AnsiConsole.WriteLine($"Your {attacker.Name} attacked the wild {wild.Name} for {damage} damage and left it with {wild.HP} HP!");
 
             if (wild.HP > 0)
             {
                 damage = wild.Attack(attacker);
-                Console.WriteLine($"The wild {wild.Name} attacked your {attacker.Name} for {damage} damage and left it with {attacker.HP} HP!");
+                AnsiConsole.WriteLine($"The wild {wild.Name} attacked your {attacker.Name} for {damage} damage and left it with {attacker.HP} HP!");
             }
         }
 
@@ -167,10 +167,19 @@ namespace PokemonPocket.Services
         {
             goldGain = 0;
 
-            Console.Write("Would you like to try and capture? (y/n): ");
-            string input = Console.ReadLine();
+            if (wild.HP == 0) {
+              AnsiConsole.WriteLine($"The wild {wild.Name} has already fainted and cannot be caught");
+              return false;
+            }
 
-            if (!string.IsNullOrEmpty(input) && input[0] == 'y')
+            Console.Write("Would you like to try and capture?");
+            string input = AnsiConsole.Prompt<String>(
+                      new SelectionPrompt<String>()
+                        .Title("Would you like to try capture?")
+                        .PageSize(10)
+                        .AddChoices("Yes", "No")
+                        );
+            if (input == "Yes")
             {
                 if (AttemptCatch(wild, maxHp))
                 {
@@ -184,17 +193,20 @@ namespace PokemonPocket.Services
                     return true;
                 }
 
-                Console.WriteLine("Capture failed.");
+                AnsiConsole.WriteLine("Capture failed.");
                 attempts--;
 
                 if (attempts > 0)
                 {
-                    Console.WriteLine("Attempt to catch again? (y/n): ");
-                    input = Console.ReadLine();
+                  input = AnsiConsole.Prompt<String>(
+                      new SelectionPrompt<String>()
+                        .Title("Would you like to try capture?")
+                        .PageSize(10)
+                        .AddChoices("Yes", "No")
+                        );
 
                     if (!string.IsNullOrEmpty(input) && input[0] == 'y')
                     {
-                        if (wild.HP == 0) Console.WriteLine($"The wild {wild.Name} has already fainted and cannot be caught");
                         if (AttemptCatch(wild, maxHp))
                         {
                             double healthPercentage = (double)wild.HP / maxHp;
@@ -215,9 +227,8 @@ namespace PokemonPocket.Services
         }
         private bool AttemptCatch(Pokemon wild, int maxHp)
         {
-            int percentageChance = (int)(((double)(maxHp - wild.HP) / maxHp) * 100);
-            return this._random.Next(1, 101) <= percentageChance;
+              int percentageChance = (int)(((double)(maxHp - wild.HP) / maxHp) * 100);
+              return this._random.Next(1, 101) <= percentageChance;
         }
     }
 }
-
