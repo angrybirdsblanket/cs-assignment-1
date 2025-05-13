@@ -331,6 +331,9 @@ namespace PokemonPocket.Services
                         gymFinished = this._gyms.HandleGymMenu();
                     }
                     break;
+                case "7":
+                    testPokemon();
+                    break;
                 case "q":
                 case "Q":
                     return false;
