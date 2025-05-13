@@ -150,7 +150,7 @@ namespace PokemonPocket.Services
         {
             if (attacker.HP <= 0)
             {
-                Console.WriteLine($"{attacker.Name} has fainted.");
+                AnsiConsole.WriteLine($"{attacker.Name} has fainted.");
                 pocket.RemoveAt(selection);
                 if (pocket.Count == 0)
                 {
