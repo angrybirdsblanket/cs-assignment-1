@@ -99,7 +99,7 @@ namespace PokemonPocket.Services
 
             AnsiConsole.WriteLine("Pokemon successfully added!");
 
-            PokemonService.ContinueToMenu();
+            continueToMenu();
         }
 
         private void listPokemon()
@@ -120,7 +120,7 @@ namespace PokemonPocket.Services
                 AnsiConsole.WriteLine($"Current Level: {p.Level}");
                 AnsiConsole.WriteLine($"------------------------------");
             }
-            PokemonService.ContinueToMenu();
+            continueToMenu();
         }
 
         private void checkEvolutionStatus()
@@ -147,7 +147,7 @@ namespace PokemonPocket.Services
                 AnsiConsole.WriteLine("You currently have no eligible pokemon for evolution");
             }
 
-            PokemonService.ContinueToMenu();
+            continueToMenu();
             
         }
 
@@ -203,10 +203,14 @@ namespace PokemonPocket.Services
               .Where(p => p.HP != p.MaxHP)
               .ToList();
 
-            AnsiConsole.WriteLine($"You currently have {player.Gold} gold, and {healablePokemon.Count()} of your pokemon currently require healing");
-            AnsiConsole.WriteLine($"You also have {player.Badges.Count()} badges");
+            var badgeCount = this._context.Badges
+              .Where(b => b.PlayerId == player.Id)
+              .Count();
 
-            PokemonService.ContinueToMenu();
+            AnsiConsole.WriteLine($"You currently have {player.Gold} gold, and {healablePokemon.Count()} of your pokemon currently require healing");
+            AnsiConsole.WriteLine($"You also have {badgeCount} badges");
+
+            continueToMenu();
         }
 
         private void healPokemon()
@@ -255,7 +259,7 @@ namespace PokemonPocket.Services
             }
             else AnsiConsole.WriteLine("All your pokemon are currently at max health!");
 
-            PokemonService.ContinueToMenu();
+            continueToMenu();
 
         }
 
@@ -359,7 +363,7 @@ namespace PokemonPocket.Services
                     }
                     break;
                 case "Gym Menu":
-                    bool gymNotFinished = true;
+                    bool gymNotFinished = false;
                     while (!gymNotFinished)
                     {
                         gymNotFinished = this._gyms.HandleGymMenu();
@@ -436,7 +440,7 @@ namespace PokemonPocket.Services
               .ToList();
         }
 
-        private void testPokemon()
+        public void testPokemon()
         {
             var pikachu = new Pikachu()
             {
@@ -476,7 +480,7 @@ namespace PokemonPocket.Services
 
         }
 
-        private static void ContinueToMenu() {
+        private void continueToMenu() {
             AnsiConsole.Prompt<string>(
                 new TextPrompt<string>("Press enter to continue...")
                 .AllowEmpty()

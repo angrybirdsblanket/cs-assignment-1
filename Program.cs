@@ -21,6 +21,10 @@ namespace PokemonPocket
 
             service.InitialiseEvoRules();
             gyms.InitialiseGyms();
+            if (PokemonService.GetPlayerPokemon(context).Count() == 0)
+            {
+                service.testPokemon();
+            }
 
             /* there will always be one player
                if no player is found, the below if statement will generate one and add to the database*/

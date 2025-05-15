@@ -54,13 +54,14 @@ namespace PokemonPocket.Models
 
         public void LevelUp()
         {
+          while (this.Exp >= 100)
+          {
             this.Exp -= 100;
             this.Level += 1;
             this.MaxHP += 50;
             this.HP = this.MaxHP;
             this.SkillDamage += 5;
-
-            AnsiConsole.WriteLine($"{this.Name} has leveled up to level {this.Level}!");
+          }
         }
 
         protected abstract int GetDamageMultiplier();
