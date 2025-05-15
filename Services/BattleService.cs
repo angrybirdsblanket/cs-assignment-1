@@ -17,59 +17,76 @@ namespace PokemonPocket.Services
             this._context = context;
         }
 
-        public Pokemon Capture()
-        {
-            Pokemon wild = GenerateRandomPokemon();
 
-            int goldGain;
-            bool success = CatchPokemon(wild, out goldGain);
-            if (success)
-            {
-                Player player = this._context.Players
-                  .Where(p => p.Id == 1)
-                  .First();
-                player.Gold += goldGain;
-            }
-
-            var levelablePokemon = PokemonService.GetPlayerPokemon(this._context)
-              .Where(p => p.Exp >= 100)
-              .ToList();
-
-            foreach (Pokemon pokemon in levelablePokemon)
-            {
-                pokemon.LevelUp();
-            }
-
-            this._context.SaveChanges();
-
-            return success ? wild : null;
-        }
-
-        private void CalculateExp(Pokemon enemy, Pokemon attacker, int damageDealt)
-        {
-            const int BaseExp = 50;
-            double damageRatio = (double)damageDealt / enemy.MaxHP;
-            double rawXp = damageRatio * BaseExp;
-
-            int xpGained = (int)Math.Floor(rawXp);
-            if (damageDealt > 0 && xpGained < 1)
-                xpGained = 1;
-
-            attacker.Exp += xpGained;
-            this._context.SaveChanges();
-        }
-
-        private Pokemon GenerateRandomPokemon()
+        private Pokemon generateRandomPokemon()
         {
             var pokemonTypes = new List<Func<Pokemon>>
             {
                 () => new Pikachu(this._random.Next(180, 301), 0),
                 () => new Eevee(this._random.Next(180, 301), 0),
-                () => new Charmander(this._random.Next(180, 301), 0)
+                () => new Charmander(this._random.Next(180, 301), 0),
+                () => new Bulbasaur(this._random.Next(180, 301), 0)
             };
 
             Pokemon wild = pokemonTypes[this._random.Next(pokemonTypes.Count)]();
             return wild;
+        }
+
+        public Pokemon Capture()
+        {
+            // Generate a wild Pokémon and announce its appearance.
+            Pokemon wild = generateRandomPokemon();
+            int goldGain;
+            bool success = CatchPokemon(wild, out goldGain);
+
+            if (success)
+            {
+                Player player = this._context.Players
+                    .Where(p => p.Id == 1)
+                    .First();
+                player.Gold += goldGain;
+            }
+
+            // Check for level ups after the combat and capture sequence.
+            var levelablePokemon = PokemonService.GetPlayerPokemon(this._context)
+                .Where(p => p.Exp >= 100)
+                .ToList();
+
+            foreach (Pokemon pokemon in levelablePokemon)
+            {
+                pokemon.LevelUp();
+                AnsiConsole.MarkupLine($"[bold green]Your {pokemon.Name} leveled up to {pokemon.Level}![/]");
+            }
+
+            this._context.SaveChanges();
+
+
+            PauseAndClear();
+            return success ? wild : null;
+        }
+
+        private void calculateExp(Pokemon enemy, Pokemon attacker, int damageDealt)
+        {
+          const int maxExp = 50;
+          int xpGained;
+
+          
+          if (damageDealt >= enemy.MaxHP)
+          {
+            xpGained = maxExp;
+          }
+          else
+          {
+            double damageRatio = (double)damageDealt / enemy.MaxHP;
+            xpGained = (int)Math.Floor(damageRatio * maxExp);
+            if (damageDealt > 0 && xpGained < 1)
+            {
+              xpGained = 1;
+            }
+          }
+
+          attacker.Exp += xpGained;
+          this._context.SaveChanges();
         }
 
         private bool CatchPokemon(Pokemon wild, out int goldGain)
@@ -81,37 +98,38 @@ namespace PokemonPocket.Services
 
             AnsiConsole.MarkupLine($"[bold yellow]\nA wild {wild.Name} with {maxHp} HP appeared![/]");
 
+            // Get the player's available Pokémon.
             List<Pokemon> pocket = GetAvailablePokemon();
-
+            
             while (attempts > 0 && wild.HP > 0 && pocket.Count > 0)
             {
-                // Player selects a Pokémon to battle
+                // Player selects a Pokémon to battle.
                 int selection = SelectPokemon(pocket);
                 Pokemon attacker = pocket[selection];
 
-                // Execute one battle round
+                // Execute one battle round.
                 ExecuteBattleRound(attacker, wild);
 
-                // Handle fainted Pokémon in the player's team
+                // Display current battle status in a table for clarity.
+                DisplayBattleStatus(attacker, wild);
+
+                // If user's attacking Pokémon fainted, handle it and continue.
                 if (HandleFaintedAttacker(pocket, ref selection, attacker))
                     continue;
 
-                // Allow up to 3 capture attempts after each attack
+                // Allow up to 3 capture attempts after each attack.
                 for (int i = 0; i < 3 && attempts > 0; i++)
                 {
-                    bool userWantsToCapture; // Track if the user chose "Yes"
+                    bool userWantsToCapture;
                     success = PromptForCapture(wild, maxHp, ref attempts, out goldGain, out userWantsToCapture);
 
-                    // Exit the loop if capture is successful
                     if (success)
                         break;
 
-                    // Exit the loop if the user does not want to capture further
                     if (!userWantsToCapture)
                         break;
                 }
 
-                // Exit the outer loop if capture is successful
                 if (success)
                     break;
             }
@@ -121,15 +139,16 @@ namespace PokemonPocket.Services
             else if (wild.HP == 0 && !success)
                 AnsiConsole.MarkupLine($"[red]{wild.Name} has fainted and cannot be caught![/]");
 
+            // Removed the PauseAndClear from here so that only one prompt is used in Capture().
             return success;
         }
 
         private List<Pokemon> GetAvailablePokemon()
         {
             return PokemonService.GetPlayerPokemon(this._context)
-              .OrderBy(p => p.Id)
-              .Where(p => p.HP > 0)
-              .ToList();
+                .OrderBy(p => p.Id)
+                .Where(p => p.HP > 0)
+                .ToList();
         }
 
         private int SelectPokemon(List<Pokemon> pocket)
@@ -150,14 +169,30 @@ namespace PokemonPocket.Services
         private void ExecuteBattleRound(Pokemon attacker, Pokemon wild)
         {
             int damage = attacker.Attack(wild);
-            CalculateExp(wild, attacker, damage);
-            AnsiConsole.MarkupLine($"[cyan]Your {attacker.Name} attacked the wild {wild.Name} for {damage} damage and left it with {wild.HP} HP![/]");
-
+            calculateExp(wild, attacker, damage);
+            AnsiConsole.MarkupLine($"[cyan]Your {attacker.Name} attacked the wild {wild.Name} for {damage} damage, leaving it with {wild.HP} HP.[/]");
+            
             if (wild.HP > 0)
             {
                 damage = wild.Attack(attacker);
-                AnsiConsole.MarkupLine($"[red]The wild {wild.Name} attacked your {attacker.Name} for {damage} damage and left it with {attacker.HP} HP![/]");
+                AnsiConsole.MarkupLine($"[red]The wild {wild.Name} attacked your {attacker.Name} for {damage} damage, leaving it with {attacker.HP} HP.[/]");
             }
+        }
+
+        private void DisplayBattleStatus(Pokemon attacker, Pokemon wild)
+        {
+            var table = new Table();
+            table.Border = TableBorder.Rounded;
+            table.Title("[bold underline]Battle Status[/]");
+            table.AddColumn("Fighter");
+            table.AddColumn("Current HP");
+            table.AddColumn("Max HP");
+            table.AddColumn("Exp");
+
+            table.AddRow(attacker.Name, attacker.HP.ToString(), attacker.MaxHP.ToString(), attacker.Exp.ToString());
+            table.AddRow(wild.Name, wild.HP.ToString(), wild.MaxHP.ToString(), "N/A");
+
+            AnsiConsole.Write(table);
         }
 
         private bool HandleFaintedAttacker(List<Pokemon> pocket, ref int selection, Pokemon attacker)
@@ -180,7 +215,7 @@ namespace PokemonPocket.Services
         private bool PromptForCapture(Pokemon wild, int maxHp, ref int attempts, out int goldGain, out bool userWantsToCapture)
         {
             goldGain = 0;
-            userWantsToCapture = false; // Default to "No"
+            userWantsToCapture = false;
 
             if (wild.HP == 0)
             {
@@ -190,20 +225,15 @@ namespace PokemonPocket.Services
 
             var input = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("[bold green]Would you like to try to capture?[/]")
+                    .Title("[bold green]Would you like to try to capture it?[/]")
                     .AddChoices("Yes", "No")
             );
 
-            // Update the user's choice
             userWantsToCapture = input == "Yes";
 
-            // Exit early if the player chooses "No"
             if (!userWantsToCapture)
-            {
                 return false;
-            }
 
-            // Attempt to catch the Pokémon
             if (AttemptCatch(wild, maxHp))
             {
                 double healthPercentage = (double)wild.HP / maxHp;
@@ -225,7 +255,15 @@ namespace PokemonPocket.Services
         private bool AttemptCatch(Pokemon wild, int maxHp)
         {
             int percentageChance = (int)(((double)(maxHp - wild.HP) / maxHp) * 100);
-            return this._random.Next(1, 101) <= percentageChance;
+            return _random.Next(1, 101) <= percentageChance;
+        }
+
+        // Helper method to pause the console until the user presses Enter, then clear the screen.
+        private void PauseAndClear()
+        {
+            AnsiConsole.MarkupLine("[grey]Press [underline]Enter[/] to continue...[/]");
+            Console.ReadLine();
+            AnsiConsole.Clear();
         }
     }
 }

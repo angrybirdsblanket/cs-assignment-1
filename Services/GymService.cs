@@ -367,16 +367,26 @@ namespace PokemonPocket.Services
 
         private void calculateExp(Pokemon enemy, Pokemon attacker, int damageDealt)
         {
-            const int BaseExp = 50;
+          const int maxExp = 50; // Max XP gained if the attack fully defeats the enemy
+          int xpGained;
+
+          // If the attack deals damage equal to (or over) the enemy's max HP, award full 50 XP.
+          if (damageDealt >= enemy.MaxHP)
+          {
+            xpGained = maxExp;
+          }
+          else
+          {
             double damageRatio = (double)damageDealt / enemy.MaxHP;
-            double rawXp = damageRatio * BaseExp;
-
-            int xpGained = (int)Math.Floor(rawXp);
+            xpGained = (int)Math.Floor(damageRatio * maxExp);
             if (damageDealt > 0 && xpGained < 1)
-                xpGained = 1;
+            {
+              xpGained = 1;
+            }
+          }
 
-            attacker.Exp += xpGained;
-            this._context.SaveChanges();
+          attacker.Exp += xpGained;
+          this._context.SaveChanges();
         }
 
         private List<Pokemon> getAvailablePokemon()
