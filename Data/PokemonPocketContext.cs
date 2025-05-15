@@ -7,10 +7,11 @@ public enum PokemonType
     Pikachu,
     Charmander,
     Eevee,
-    Bulbasaur,
     Raichu,
     Flareon,
-    Charmeleon
+    Charmeleon,
+    Bulbasaur,
+    Ivysaur
 }
 
 public class PokemonPocketContext : DbContext
@@ -42,7 +43,9 @@ public class PokemonPocketContext : DbContext
             .HasValue<Ivysaur>(PokemonType.Bulbasaur)
             .HasValue<Raichu>(PokemonType.Raichu)
             .HasValue<Flareon>(PokemonType.Flareon)
-            .HasValue<Charmeleon>(PokemonType.Charmeleon);
+            .HasValue<Charmeleon>(PokemonType.Charmeleon)
+            .HasValue<Bulbasaur>(PokemonType.Bulbasaur)
+            .HasValue<Ivysaur>(PokemonType.Ivysaur);
 
         modelBuilder.Entity<Player>()
             .HasMany(p => p.Badges)

@@ -21,6 +21,12 @@ namespace PokemonPocket
 
             service.InitialiseEvoRules();
             gyms.InitialiseGyms();
+            
+            //for testing purposes
+            if (PokemonService.GetPlayerPokemon(context).Count() == 0)
+            {
+                service.testPokemon();
+            }
 
             /* there will always be one player
                if no player is found, the below if statement will generate one and add to the database*/
@@ -38,11 +44,9 @@ namespace PokemonPocket
             while (running)
             {
                 running = service.GetNextAction();
-                if (running) Console.WriteLine();
             }
             Environment.Exit(0);
 
         }
     }
 }
-
