@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PokemonPocket.Data;
 using PokemonPocket.Models;
+using Spectre.Console;
 using Microsoft.EntityFrameworkCore;
 
 namespace PokemonPocket.Services
@@ -19,13 +20,23 @@ namespace PokemonPocket.Services
             this._context = context;
         }
 
-        private void displayGymMenu()
+        private string displayGymMenu()
         {
-            Console.WriteLine("==== Pokemon Gym ====");
-            Console.WriteLine("(1) Check Upcoming Gym battles");
-            Console.WriteLine("(2) Check next Gym Leader's Team");
-            Console.WriteLine("(3) Start Gym fight");
-            Console.Write("Please enter [1,2,3] or B to go back: ");
+            // Console.WriteLine("==== Pokemon Gym ====");
+            // Console.WriteLine("(1) Check Upcoming Gym battles");
+            // Console.WriteLine("(2) Check next Gym Leader's Team");
+            // Console.WriteLine("(3) Start Gym fight");
+            // Console.Write("Please enter [1,2,3] or B to go back: ");
+          string selection = AnsiConsole.Prompt<String>(
+            new SelectionPrompt<string>()
+                .Title("==== Pokemon Gym ====")
+                .AddChoices(new[] { 
+                  "Check Upcoming Gym battles", 
+                  "Check next Gym Leader's Team", 
+                  "Start Gym fight",
+                  "Go Back" })
+                );
+          return selection;
         }
 
 
@@ -34,34 +45,24 @@ namespace PokemonPocket.Services
         {
             this.displayGymMenu();
 
-            string input;
-
-            input = Console.ReadLine();
-            while (string.IsNullOrEmpty(input))
-            {
-
-                Console.WriteLine("No input was detected, please try again");
-                this.displayGymMenu();
-                input = Console.ReadLine();
-            }
-
-            input = input.ToLower();
-
+            string input = displayGymMenu();
+            
             switch (input)
             {
-                case "1":
+                case "Check Upcoming Gym battles":
                     listGyms();
-                    return true;
-                case "2":
+                    return false;
+                case "Check next Gym Leader's Team":
                     getNextFightPokemon();
-                    return true;
-                case "3":
+                    return false;
+                case "Start Gym fight":
                     startGymFight();
+                    return false;
+                case "Go Back":
                     return true;
-                case "b":
-                    return true;
+                default:
+                    return true; // unreachable but required by compiler
             }
-            return true; // code will never reach here due to spectre console prompts, but the compiler requires it
         }
 
         public void InitialiseGyms()
@@ -152,14 +153,16 @@ namespace PokemonPocket.Services
             var gyms = this._context.GymLeaders
               .ToList();
 
-            Console.WriteLine("\nThe following gyms are coming up:");
-            Console.WriteLine("-------------------------------");
+            AnsiConsole.WriteLine("\nThe following gyms are coming up:");
+            AnsiConsole.WriteLine("-------------------------------");
 
             int gym = 1;
+
+            // TODO: convert to a spectre console table
             foreach (GymLeader leader in gyms)
             {
                 string status = leader.Defeated ? "[DEFEATED]" : "[CHALLENGE AVAILABLE]";
-                Console.WriteLine($"{gym}. {leader.GymName} - {leader.TrainerName} {status}");
+                AnsiConsole.WriteLine($"{gym}. {leader.GymName} - {leader.TrainerName} {status}");
                 gym++;
             }
 
@@ -175,20 +178,21 @@ namespace PokemonPocket.Services
 
             if (nextLeader != null)
             {
-                Console.WriteLine($"\nThe {nextLeader.GymName} is next");
-                Console.WriteLine($"Gym Leader: {nextLeader.TrainerName}");
-                Console.WriteLine($"Badge: {nextLeader.BadgeName}");
-                Console.WriteLine("\nYou will be fighting the following pokemon:");
-                Console.WriteLine("----------------------------------------");
+                AnsiConsole.WriteLine($"\nThe {nextLeader.GymName} is next");
+                AnsiConsole.WriteLine($"Gym Leader: {nextLeader.TrainerName}");
+                AnsiConsole.WriteLine($"Badge: {nextLeader.BadgeName}");
+                AnsiConsole.WriteLine("\nYou will be fighting the following pokemon:");
+                AnsiConsole.WriteLine("----------------------------------------");
 
+                //TODO: convert to a spectre console table
                 foreach (Pokemon pokemon in nextLeader.PokemonTeam)
                 {
-                    Console.WriteLine($"{pokemon.Name}: {pokemon.MaxHP} HP, Level {pokemon.Level}, Skill: {pokemon.Skill} ({pokemon.SkillDamage} damage)");
+                    AnsiConsole.WriteLine($"{pokemon.Name}: {pokemon.MaxHP} HP, Level {pokemon.Level}, Skill: {pokemon.Skill} ({pokemon.SkillDamage} damage)");
                 }
             }
             else
             {
-                Console.WriteLine("\nCongratulations! You have defeated all gym leaders!");
+                AnsiConsole.WriteLine("\nCongratulations! You have defeated all gym leaders!");
             }
         }
 
@@ -201,8 +205,8 @@ namespace PokemonPocket.Services
 
             if (leader == null)
             {
-                Console.WriteLine("\nYou have defeated all leaders! Congratulations on becoming a Pokemon Master!");
-                Console.WriteLine();
+                AnsiConsole.WriteLine("\nYou have defeated all leaders! Congratulations on becoming a Pokemon Master!");
+                AnsiConsole.WriteLine();
                 return;
             }
 

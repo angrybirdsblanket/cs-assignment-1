@@ -180,10 +180,10 @@ namespace PokemonPocket.Services
 
                     Pokemon evolved = rule.EvolveTo.ToLower() switch
                     {
-                        "raichu" => new Raichu { HP = maxHp, Exp = maxExp, Name = "Raichu", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
-                        "charmeleon" => new Charmeleon { HP = maxHp, Exp = maxExp, Name = "Charmeleon", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
-                        "flareon" => new Flareon { HP = maxHp, Exp = maxExp, Name = "Flareon", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
-                        "ivysaur" => new Ivysaur { HP = maxHp, Exp = maxExp, Name = "Ivysaur", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
+                        "raichu" => new Raichu { HP = 100, Exp = 0, Name = "Raichu", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
+                        "charmeleon" => new Charmeleon { HP = 100, Exp = 0, Name = "Charmeleon", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
+                        "flareon" => new Flareon { HP = 100, Exp = 0, Name = "Flareon", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
+                        "ivysaur" => new Ivysaur { HP = 100, Exp = 0, Name = "Ivysaur", Level = maxLevel, SkillDamage = maxSkillDamage, MaxHP = maxHp },
                         _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}") // here to suppress compiler warning
                     };
                     this._context.Add(evolved);
@@ -322,7 +322,7 @@ namespace PokemonPocket.Services
                     }
                     else
                     {
-                        Console.WriteLine("Your Pocket is empty, please come back once you have pokemon inside.");
+                        AnsiConsole.WriteLine("Your Pocket is empty, please come back once you have pokemon inside.");
                     }
 
                     return true;

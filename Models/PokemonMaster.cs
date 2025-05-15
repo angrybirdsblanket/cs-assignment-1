@@ -9,6 +9,6 @@ namespace PokemonPocket.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public int NoToEvolve { get; set; }
-        public List<string> EvolveTo { get; set; } = null!;
+        public string EvolveTo { get; set; } = null!;
     }
 }
