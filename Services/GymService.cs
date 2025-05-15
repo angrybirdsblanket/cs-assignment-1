@@ -37,7 +37,7 @@ namespace PokemonPocket.Services
         public bool HandleGymMenu()
         {
             string input = displayGymMenu();
-            
+
             switch (input)
             {
                 case "Check Upcoming Gym battles":
@@ -360,33 +360,33 @@ namespace PokemonPocket.Services
                 AnsiConsole.MarkupLine($"\n[red]You were defeated by Gym Leader {leader.TrainerName}.[/]");
                 AnsiConsole.MarkupLine("[yellow]Train harder and try again![/]");
             }
-            
+
             this._context.SaveChanges();
             continueToMenu();
         }
 
         private void calculateExp(Pokemon enemy, Pokemon attacker, int damageDealt)
         {
-          const int maxExp = 50; // Max XP gained if the attack fully defeats the enemy
-          int xpGained;
+            const int maxExp = 50; // Max XP gained if the attack fully defeats the enemy
+            int xpGained;
 
-          // If the attack deals damage equal to (or over) the enemy's max HP, award full 50 XP.
-          if (damageDealt >= enemy.MaxHP)
-          {
-            xpGained = maxExp;
-          }
-          else
-          {
-            double damageRatio = (double)damageDealt / enemy.MaxHP;
-            xpGained = (int)Math.Floor(damageRatio * maxExp);
-            if (damageDealt > 0 && xpGained < 1)
+            // If the attack deals damage equal to (or over) the enemy's max HP, award full 50 XP.
+            if (damageDealt >= enemy.MaxHP)
             {
-              xpGained = 1;
+                xpGained = maxExp;
             }
-          }
+            else
+            {
+                double damageRatio = (double)damageDealt / enemy.MaxHP;
+                xpGained = (int)Math.Floor(damageRatio * maxExp);
+                if (damageDealt > 0 && xpGained < 1)
+                {
+                    xpGained = 1;
+                }
+            }
 
-          attacker.Exp += xpGained;
-          this._context.SaveChanges();
+            attacker.Exp += xpGained;
+            this._context.SaveChanges();
         }
 
         private List<Pokemon> getAvailablePokemon()
@@ -421,7 +421,7 @@ namespace PokemonPocket.Services
                 AnsiConsole.MarkupLine($"The trainer's [green]{leaderPokemon.Name}[/] attacked your [green]{attacker.Name}[/] for [bold]{damage}[/] damage and left it with [italic]{attacker.HP}[/] HP!");
             }
         }
-        
+
         // Helper method to pause and clear the console.
         private void continueToMenu()
         {

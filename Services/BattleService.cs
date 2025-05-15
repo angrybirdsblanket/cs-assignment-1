@@ -67,26 +67,26 @@ namespace PokemonPocket.Services
 
         private void calculateExp(Pokemon enemy, Pokemon attacker, int damageDealt)
         {
-          const int maxExp = 50;
-          int xpGained;
+            const int maxExp = 50;
+            int xpGained;
 
-          
-          if (damageDealt >= enemy.MaxHP)
-          {
-            xpGained = maxExp;
-          }
-          else
-          {
-            double damageRatio = (double)damageDealt / enemy.MaxHP;
-            xpGained = (int)Math.Floor(damageRatio * maxExp);
-            if (damageDealt > 0 && xpGained < 1)
+
+            if (damageDealt >= enemy.MaxHP)
             {
-              xpGained = 1;
+                xpGained = maxExp;
             }
-          }
+            else
+            {
+                double damageRatio = (double)damageDealt / enemy.MaxHP;
+                xpGained = (int)Math.Floor(damageRatio * maxExp);
+                if (damageDealt > 0 && xpGained < 1)
+                {
+                    xpGained = 1;
+                }
+            }
 
-          attacker.Exp += xpGained;
-          this._context.SaveChanges();
+            attacker.Exp += xpGained;
+            this._context.SaveChanges();
         }
 
         private bool CatchPokemon(Pokemon wild, out int goldGain)
@@ -100,7 +100,7 @@ namespace PokemonPocket.Services
 
             // Get the player's available Pokémon.
             List<Pokemon> pocket = GetAvailablePokemon();
-            
+
             while (attempts > 0 && wild.HP > 0 && pocket.Count > 0)
             {
                 // Player selects a Pokémon to battle.
@@ -171,7 +171,7 @@ namespace PokemonPocket.Services
             int damage = attacker.Attack(wild);
             calculateExp(wild, attacker, damage);
             AnsiConsole.MarkupLine($"[cyan]Your {attacker.Name} attacked the wild {wild.Name} for {damage} damage, leaving it with {wild.HP} HP.[/]");
-            
+
             if (wild.HP > 0)
             {
                 damage = wild.Attack(attacker);

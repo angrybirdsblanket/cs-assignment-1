@@ -21,13 +21,14 @@ namespace PokemonPocket
 
             service.InitialiseEvoRules();
             gyms.InitialiseGyms();
-            
+
             //for testing purposes
-            if ("seed".Equals(args[0])){
-              if (PokemonService.GetPlayerPokemon(context).Count() == 0)
-              {
-                  service.testPokemon();
-              }
+            if ("seed".Equals(args[0]))
+            {
+                if (PokemonService.GetPlayerPokemon(context).Count() == 0)
+                {
+                    service.testPokemon();
+                }
             }
 
             /* there will always be one player
