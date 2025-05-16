@@ -128,7 +128,6 @@ namespace PokemonPocket.Services
             table.Border = TableBorder.Rounded;
             table.Title("[bold underline]Evolution Status[/]");
             table.AddColumn("Pokemon");
-            table.AddColumn("Eligible Count");
             table.AddColumn("Evolves To");
 
             foreach (var rule in rules)
@@ -141,7 +140,7 @@ namespace PokemonPocket.Services
                 {
                     eligibleEvolutions = true;
                     int eligibleCount = list.Count / rule.NoToEvolve * rule.NoToEvolve;
-                    table.AddRow(rule.Name, eligibleCount.ToString(), rule.EvolveTo);
+                    table.AddRow($"{eligibleCount} {rule.Name}" , $"{list.Count / rule.NoToEvolve} {rule.EvolveTo}");
                 }
             }
             if (!eligibleEvolutions)

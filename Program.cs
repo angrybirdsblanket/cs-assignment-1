@@ -23,13 +23,13 @@ namespace PokemonPocket
             gyms.InitialiseGyms();
 
             //for testing purposes
-            if ("seed".Equals(args[0]))
-            {
-                if (PokemonService.GetPlayerPokemon(context).Count() == 0)
-                {
-                    service.testPokemon();
-                }
-            }
+            // if ("seed".Equals(args[0]))
+            // {
+            //     if (PokemonService.GetPlayerPokemon(context).Count() == 0)
+            //     {
+            //         service.testPokemon();
+            //     }
+            // }
 
             /* there will always be one player
                if no player is found, the below if statement will generate one and add to the database*/
