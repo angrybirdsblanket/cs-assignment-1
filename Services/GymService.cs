@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using PokemonPocket.Data;
-using PokemonPocket.Models;
-using Spectre.Console;
 using Microsoft.EntityFrameworkCore;
 
 namespace PokemonPocket.Services
@@ -365,30 +359,6 @@ namespace PokemonPocket.Services
             continueToMenu();
         }
 
-        private void calculateExp(Pokemon enemy, Pokemon attacker, int damageDealt)
-        {
-            const int maxExp = 50; // Max XP gained if the attack fully defeats the enemy
-            int xpGained;
-
-            // If the attack deals damage equal to (or over) the enemy's max HP, award full 50 XP.
-            if (damageDealt >= enemy.MaxHP)
-            {
-                xpGained = maxExp;
-            }
-            else
-            {
-                double damageRatio = (double)damageDealt / enemy.MaxHP;
-                xpGained = (int)Math.Floor(damageRatio * maxExp);
-                if (damageDealt > 0 && xpGained < 1)
-                {
-                    xpGained = 1;
-                }
-            }
-
-            attacker.Exp += xpGained;
-            this._context.SaveChanges();
-        }
-
         private List<Pokemon> getAvailablePokemon()
         {
             return PokemonService.GetPlayerPokemon(this._context)
@@ -413,7 +383,7 @@ namespace PokemonPocket.Services
         {
             int damage = attacker.Attack(leaderPokemon);
             AnsiConsole.MarkupLine($"Your [green]{attacker.Name}[/] attacked the trainer's [green]{leaderPokemon.Name}[/] for [bold]{damage}[/] damage and left it with [italic]{leaderPokemon.HP}[/] HP!");
-            calculateExp(leaderPokemon, attacker, damage);
+            attacker.Exp += attacker.calculateExp(leaderPokemon, damage);
 
             if (leaderPokemon.HP > 0)
             {

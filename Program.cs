@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using PokemonPocket.Data;
-using PokemonPocket.Models;
-using PokemonPocket.Services;
+﻿using PokemonPocket.Services;
 
 namespace PokemonPocket
 {
@@ -23,13 +19,11 @@ namespace PokemonPocket
             gyms.InitialiseGyms();
 
             //for testing purposes
-            // if ("seed".Equals(args[0]))
-            // {
-            //     if (PokemonService.GetPlayerPokemon(context).Count() == 0)
-            //     {
-            //         service.testPokemon();
-            //     }
-            // }
+            if (args.Count() > 0 && "--seed".Equals(args[0])) {
+              List<Pokemon> list = PokemonService.GetPlayerPokemon(context);
+              context.RemoveRange(list);
+              service.testPokemon();
+            }
 
             /* there will always be one player
                if no player is found, the below if statement will generate one and add to the database*/

@@ -1,6 +1,5 @@
 namespace PokemonPocket.Data;
 using Microsoft.EntityFrameworkCore;
-using PokemonPocket.Models;
 
 public enum PokemonType
 {
@@ -55,7 +54,7 @@ public class PokemonPocketContext : DbContext
 
         modelBuilder.Entity<GymLeader>()
             .HasMany(gl => gl.PokemonTeam)
-            .WithOne()  // No navigation property from Pokemon back to GymLeader.
+            .WithOne()  
             .HasForeignKey("GymLeaderId")
             .IsRequired(false)  // This allows Pokemon not belonging to a GymLeader to have a null GymLeaderId.
             .OnDelete(DeleteBehavior.Cascade);

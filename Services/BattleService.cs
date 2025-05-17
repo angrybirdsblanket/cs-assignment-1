@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using PokemonPocket.Models;
-using PokemonPocket.Data;
-using Spectre.Console;
-
 namespace PokemonPocket.Services
 {
     public class BattleService
@@ -63,30 +56,6 @@ namespace PokemonPocket.Services
 
             PauseAndClear();
             return success ? wild : null;
-        }
-
-        private void calculateExp(Pokemon enemy, Pokemon attacker, int damageDealt)
-        {
-            const int maxExp = 50;
-            int xpGained;
-
-
-            if (damageDealt >= enemy.MaxHP)
-            {
-                xpGained = maxExp;
-            }
-            else
-            {
-                double damageRatio = (double)damageDealt / enemy.MaxHP;
-                xpGained = (int)Math.Floor(damageRatio * maxExp);
-                if (damageDealt > 0 && xpGained < 1)
-                {
-                    xpGained = 1;
-                }
-            }
-
-            attacker.Exp += xpGained;
-            this._context.SaveChanges();
         }
 
         private bool CatchPokemon(Pokemon wild, out int goldGain)
@@ -169,7 +138,7 @@ namespace PokemonPocket.Services
         private void ExecuteBattleRound(Pokemon attacker, Pokemon wild)
         {
             int damage = attacker.Attack(wild);
-            calculateExp(wild, attacker, damage);
+            attacker.Exp += attacker.calculateExp(wild, damage);
             AnsiConsole.MarkupLine($"[cyan]Your {attacker.Name} attacked the wild {wild.Name} for {damage} damage, leaving it with {wild.HP} HP.[/]");
 
             if (wild.HP > 0)

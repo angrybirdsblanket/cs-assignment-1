@@ -1,7 +1,6 @@
 using static System.Math;
-using System;
 using System.ComponentModel.DataAnnotations;
-using Spectre.Console;
+
 
 namespace PokemonPocket.Models
 
@@ -62,6 +61,30 @@ namespace PokemonPocket.Models
                 this.HP = this.MaxHP;
                 this.SkillDamage += 5;
             }
+        }
+
+
+        public int calculateExp(Pokemon enemy, int damageDealt)
+        {
+            const int maxExp = 50; 
+            int expGained;
+            double levelRatio = (double)enemy.Level / (double)this.Level;
+
+            if (damageDealt >= enemy.MaxHP)
+            {
+                expGained = (int)(maxExp * levelRatio);
+            }
+            else
+            {
+                double damageRatio = (double)damageDealt / enemy.MaxHP;
+                expGained = (int)Math.Floor(damageRatio * maxExp);
+                if (damageDealt > 0 && expGained < 1)
+                {
+                    expGained = 1;
+                }
+            }
+
+            return expGained;
         }
 
         protected abstract int GetDamageMultiplier();

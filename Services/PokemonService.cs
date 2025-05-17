@@ -1,10 +1,4 @@
-using System;
-using Spectre.Console;
 using static System.Math;
-using System.Collections.Generic;
-using System.Linq;
-using PokemonPocket.Data;
-using PokemonPocket.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace PokemonPocket.Services
@@ -606,14 +600,16 @@ namespace PokemonPocket.Services
             if (list.Count >= rule.NoToEvolve)
             {
               eligibleEvolutions = true;
-              int eligibleCount = list.Count / rule.NoToEvolve * rule.NoToEvolve;
-              Console.WriteLine($"{list.Count()} {rule.Name} --> {eligibleCount} {rule.EvolveTo}");
+              int evolutionCount = list.Count() / rule.NoToEvolve;
+              int eligibleCount = evolutionCount * rule.NoToEvolve;
+              Console.WriteLine($"{eligibleCount} {rule.Name} --> {evolutionCount} {rule.EvolveTo}");
             }
-            if (eligibleEvolutions) {
-
-            } 
           }
+          if (!eligibleEvolutions) {
+            Console.WriteLine("You currently have no eligible pokemon for evolution");
+          } 
         }
+
         private void toggleGameState() {
           switch (this.simpleState) {
             case true:
