@@ -136,7 +136,7 @@ namespace PokemonPocket.Services
                 {
                     eligibleEvolutions = true;
                     int eligibleCount = list.Count / rule.NoToEvolve * rule.NoToEvolve;
-                    table.AddRow($"{eligibleCount} {rule.Name}" , $"{list.Count / rule.NoToEvolve} {rule.EvolveTo}");
+                    table.AddRow($"{eligibleCount} {rule.Name}", $"{list.Count / rule.NoToEvolve} {rule.EvolveTo}");
                 }
             }
             if (!eligibleEvolutions)
@@ -171,7 +171,6 @@ namespace PokemonPocket.Services
                         .ToList();
 
                     int maxHp = batch.Max(p => p.MaxHP);
-                    int maxExp = batch.Max(p => p.Exp);
                     int maxLevel = batch.Max(p => p.Level);
                     int maxSkillDamage = batch.Max(p => p.SkillDamage);
 
@@ -290,7 +289,7 @@ namespace PokemonPocket.Services
         {
             var selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("[bold yellow]Player Menu[/]")
+                    .Title("[bold yellow] ==== Player Menu ====[/]")
                     .PageSize(10)
                     .AddChoices(new[] {
                         "Check your player Statistics",
@@ -337,70 +336,72 @@ namespace PokemonPocket.Services
 
         public bool GetNextAction()
         {
-          switch(simpleState) {
+            switch (simpleState)
+            {
 
-            case false:
-              string input = this.drawMainMenu();
-              switch (input)
-              {
-                  case "Add Pokemon to my Pocket":
-                      addPokemon();
-                      break;
-                  case "List Pokemon(s) in my Pocket":
-                      listPokemon();
-                      break;
-                  case "Check if I can evolve my Pokemon":
-                      checkEvolutionStatus();
-                      break;
-                  case "Evolve Pokemon":
-                      evolveEligiblePokemon();
-                      break;
-                  case "Player Menu":
-                      bool playerNotFinished = true;
-                      while (playerNotFinished)
-                      {
-                          playerNotFinished = handlePlayerMenu();
-                      }
-                      break;
-                  case "Gym Menu":
-                      bool gymNotFinished = false;
-                      while (!gymNotFinished)
-                      {
-                          gymNotFinished = this._gyms.HandleGymMenu();
-                      }
-                      break;
-                  case "Toggle Game State":
-                      toggleGameState();
-                      break;
-                  case "Exit":
-                      return false;
-              }
-              return true;
+                case false:
+                    string input = this.drawMainMenu();
+                    switch (input)
+                    {
+                        case "Add Pokemon to my Pocket":
+                            addPokemon();
+                            break;
+                        case "List Pokemon(s) in my Pocket":
+                            listPokemon();
+                            break;
+                        case "Check if I can evolve my Pokemon":
+                            checkEvolutionStatus();
+                            break;
+                        case "Evolve Pokemon":
+                            evolveEligiblePokemon();
+                            break;
+                        case "Player Menu":
+                            bool playerNotFinished = true;
+                            while (playerNotFinished)
+                            {
+                                playerNotFinished = handlePlayerMenu();
+                            }
+                            break;
+                        case "Gym Menu":
+                            bool gymNotFinished = false;
+                            while (!gymNotFinished)
+                            {
+                                gymNotFinished = this._gyms.HandleGymMenu();
+                            }
+                            break;
+                        case "Toggle Game State":
+                            toggleGameState();
+                            break;
+                        case "Exit":
+                            return false;
+                    }
+                    return true;
 
-            case true:
-              char simpleInput = drawSimpleMainMenu();
-              switch (simpleInput) {
-                case '1':
-                  simpleAddPokemon();
-                  break;
-                case '2':
-                  simpleListPokemon();
-                  break;
-                case '3':
-                  simpleCheckEvolutionStatus();
-                  break;
-                case '4':
-                  evolveEligiblePokemon();
-                  break;
-                case '5':
-                  toggleGameState();
-                  break;
-                case 'q':
-                  return false;
-              }
+                case true:
+                    char simpleInput = drawSimpleMainMenu();
+                    switch (simpleInput)
+                    {
+                        case '1':
+                            simpleAddPokemon();
+                            break;
+                        case '2':
+                            simpleListPokemon();
+                            break;
+                        case '3':
+                            simpleCheckEvolutionStatus();
+                            break;
+                        case '4':
+                            evolveEligiblePokemon();
+                            break;
+                        case '5':
+                            toggleGameState();
+                            break;
+                        case 'q':
+                            return false;
+                    }
 
-              return true;
-          }
+                    return true;
+            }
         }
 
         public void InitialiseEvoRules()
@@ -511,117 +512,153 @@ namespace PokemonPocket.Services
             AnsiConsole.Clear();
         }
 
-        private char drawSimpleMainMenu() {
-          Console.WriteLine(new string('*', 29));
-          Console.WriteLine("Welcome to Pokemon Pocket App");
-          Console.WriteLine(new string('*', 29));
-          Console.WriteLine("(1). Add pokemon to my pocket");
-          Console.WriteLine("(2). List pokemon(s) in my Pocket");
-          Console.WriteLine("(3). Check if I can evlove pokemon");
-          Console.WriteLine("(4). Evolve pokemon");
-          Console.WriteLine("(5). Toggle Game State");
-          Console.Write("Please only enter [1,2,3,4,5] or press Q to quit: ");
-
-          string inputString = Console.ReadLine().ToLower();
-          while (string.IsNullOrEmpty(inputString) || !(new[] {'1', '2', '3', '4', '5', 'q'}.Contains(inputString[0])))
-          {
-            Console.WriteLine("Invalid entry, please try again"); 
+        private char drawSimpleMainMenu()
+        {
+            Console.WriteLine(new string('*', 29));
+            Console.WriteLine("Welcome to Pokemon Pocket App");
+            Console.WriteLine(new string('*', 29));
             Console.WriteLine("(1). Add pokemon to my pocket");
             Console.WriteLine("(2). List pokemon(s) in my Pocket");
             Console.WriteLine("(3). Check if I can evlove pokemon");
             Console.WriteLine("(4). Evolve pokemon");
+            Console.WriteLine("(5). Toggle Game State");
             Console.Write("Please only enter [1,2,3,4,5] or press Q to quit: ");
 
-            inputString = Console.ReadLine().ToLower();
-          }
-          char input = inputString[0]; 
-          return input;
-        }
-
-        private void simpleAddPokemon() {
-
-          Console.Write("Enter Pokemon's Name: ");
-          string pokemonName = Console.ReadLine().ToLower();
-          
-          while (!(new[] {"pikachu", "charmander", "eevee"}.Contains(pokemonName))) {
-            Console.WriteLine("Please only enter 'Pikachu' 'Charmander' or 'Eevee'");
-            Console.Write("Enter Pokemon's Name: ");
-            pokemonName = Console.ReadLine().ToLower();
-          }
-
-          Console.Write("Enter Pokemon's HP: ");
-          int pokemonHP = Int32.Parse(Console.ReadLine());
-
-          Console.Write("Enter Pokemon's Exp: ");
-          int pokemonExp = Int32.Parse(Console.ReadLine());
-
-          switch(pokemonName) {
-            case "pikachu":
-              Pikachu pikachu = new Pikachu(pokemonHP, pokemonExp);
-              this._context.Add(pikachu);
-              break;
-            case "charmander":
-              Charmander charmander = new Charmander(pokemonHP, pokemonExp);
-              this._context.Add(charmander);
-              break;
-            case "eevee":
-              Eevee eevee = new Eevee(pokemonHP, pokemonExp);
-              this._context.Add(eevee);
-              break;
-          }
-
-          this._context.SaveChanges();
-
-        }
-
-        private void simpleListPokemon() {
-          List<Pokemon> pocket = PokemonService.GetPlayerPokemon(this._context)
-            .OrderByDescending(p => p.Exp)
-            .ToList();
-          foreach (Pokemon pokemon in pocket) {
-            Console.WriteLine($"Name: {pokemon.Name}");
-            Console.WriteLine($"HP: {pokemon.HP}");
-            Console.WriteLine($"Exp: {pokemon.Exp}");
-            Console.WriteLine($"Skill: {pokemon.Skill}");
-            Console.WriteLine(new string('-', 30));
-          }
-        }
-
-        private void simpleCheckEvolutionStatus() {
-          var rules = this._context.EvolutionRules.ToList();
-          bool eligibleEvolutions = false;
-
-          foreach (var rule in rules)
-          {
-            var list = PokemonService.GetPlayerPokemon(this._context)
-              .Where(p => p.Name == rule.Name)
-              .ToList();
-
-            if (list.Count >= rule.NoToEvolve)
+            string inputString = Console.ReadLine().ToLower();
+            while (string.IsNullOrEmpty(inputString) || !(new[] { '1', '2', '3', '4', '5', 'q' }.Contains(inputString[0])))
             {
-              eligibleEvolutions = true;
-              int evolutionCount = list.Count() / rule.NoToEvolve;
-              int eligibleCount = evolutionCount * rule.NoToEvolve;
-              Console.WriteLine($"{eligibleCount} {rule.Name} --> {evolutionCount} {rule.EvolveTo}");
+                Console.WriteLine("Invalid entry, please try again");
+                Console.WriteLine("(1). Add pokemon to my pocket");
+                Console.WriteLine("(2). List pokemon(s) in my Pocket");
+                Console.WriteLine("(3). Check if I can evlove pokemon");
+                Console.WriteLine("(4). Evolve pokemon");
+                Console.Write("Please only enter [1,2,3,4,5] or press Q to quit: ");
+
+                inputString = Console.ReadLine().ToLower();
             }
-          }
-          if (!eligibleEvolutions) {
-            Console.WriteLine("You currently have no eligible pokemon for evolution");
-          } 
+            char input = inputString[0];
+            return input;
         }
 
-        private void toggleGameState() {
-          switch (this.simpleState) {
-            case true:
-              Console.Clear();
-              this.simpleState = false;
-              break;
-            
-            case false:
-              AnsiConsole.Clear();
-              this.simpleState = true;
-              break;
-          }
+        private void simpleAddPokemon()
+        {
+
+            Console.Write("Enter Pokemon's Name: ");
+            string pokemonName = Console.ReadLine().ToLower();
+
+            while (!(new[] { "pikachu", "charmander", "eevee" }.Contains(pokemonName)))
+            {
+                Console.WriteLine("Please only enter 'Pikachu' 'Charmander' or 'Eevee'");
+                Console.Write("Enter Pokemon's Name: ");
+                pokemonName = Console.ReadLine().ToLower();
+            }
+
+            Console.Write("Enter Pokemon's HP: ");
+            int pokemonHP;
+            while (true)
+            {
+                string inputHP = Console.ReadLine();
+                try
+                {
+                    pokemonHP = Int32.Parse(inputHP);
+                    break; // Break out of the loop if parsing is successful
+                }
+                catch (FormatException)
+                {
+                    Console.Write("Invalid input. Please enter a valid integer for HP: ");
+                }
+            }
+
+            Console.Write("Enter Pokemon's Exp: ");
+            int pokemonExp;
+            while (true)
+            {
+                string inputExp = Console.ReadLine();
+                try
+                {
+                    pokemonExp = Int32.Parse(inputExp);
+                    break; // Break out of the loop if parsing is successful
+                }
+                catch (FormatException)
+                {
+                    Console.Write("Invalid input. Please enter a valid integer for Exp: ");
+                }
+            }
+            switch (pokemonName)
+            {
+                case "pikachu":
+                    Pikachu pikachu = new Pikachu(pokemonHP, pokemonExp);
+                    this._context.Add(pikachu);
+                    break;
+                case "charmander":
+                    Charmander charmander = new Charmander(pokemonHP, pokemonExp);
+                    this._context.Add(charmander);
+                    break;
+                case "eevee":
+                    Eevee eevee = new Eevee(pokemonHP, pokemonExp);
+                    this._context.Add(eevee);
+                    break;
+            }
+
+            this._context.SaveChanges();
+
+        }
+
+        private void simpleListPokemon()
+        {
+            Console.WriteLine();
+            List<Pokemon> pocket = PokemonService.GetPlayerPokemon(this._context)
+              .OrderByDescending(p => p.Exp)
+              .ToList();
+            foreach (Pokemon pokemon in pocket)
+            {
+                Console.WriteLine($"Name: {pokemon.Name}");
+                Console.WriteLine($"HP: {pokemon.HP}");
+                Console.WriteLine($"Exp: {pokemon.Exp}");
+                Console.WriteLine($"Skill: {pokemon.Skill}");
+                Console.WriteLine(new string('-', 30));
+            }
+        }
+
+        private void simpleCheckEvolutionStatus()
+        {
+            var rules = this._context.EvolutionRules.ToList();
+            bool eligibleEvolutions = false;
+
+            foreach (var rule in rules)
+            {
+                var list = PokemonService.GetPlayerPokemon(this._context)
+                  .Where(p => p.Name == rule.Name)
+                  .ToList();
+
+                if (list.Count >= rule.NoToEvolve)
+                {
+                    eligibleEvolutions = true;
+                    int evolutionCount = list.Count() / rule.NoToEvolve;
+                    int eligibleCount = evolutionCount * rule.NoToEvolve;
+                    Console.WriteLine($"{eligibleCount} {rule.Name} --> {evolutionCount} {rule.EvolveTo}");
+                }
+            }
+            if (!eligibleEvolutions)
+            {
+                Console.WriteLine("You currently have no eligible pokemon for evolution");
+            }
+        }
+
+        private void toggleGameState()
+        {
+            switch (this.simpleState)
+            {
+                case true:
+                    Console.Clear();
+                    this.simpleState = false;
+                    break;
+
+                case false:
+                    AnsiConsole.Clear();
+                    this.simpleState = true;
+                    break;
+            }
         }
     }
 }

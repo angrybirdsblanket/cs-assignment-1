@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations;
 namespace PokemonPocket.Models
 
 {
-    // Base class for all Pokémon
     public abstract class Pokemon
     {
         private readonly Random _random = new Random();
@@ -39,8 +38,7 @@ namespace PokemonPocket.Models
 
         public int Attack(Pokemon defender)
         {
-            double multiplier = Max(this._random.NextDouble(), 0.5);
-            int damage = Convert.ToInt32(this.SkillDamage * this.GetDamageMultiplier() * multiplier);
+            int damage = calculateDamage();
 
             defender.HP = Max(0, defender.HP - damage);
             return damage;
@@ -66,7 +64,7 @@ namespace PokemonPocket.Models
 
         public int calculateExp(Pokemon enemy, int damageDealt)
         {
-            const int maxExp = 50; 
+            const int maxExp = 50;
             int expGained;
             double levelRatio = (double)enemy.Level / (double)this.Level;
 
@@ -88,6 +86,13 @@ namespace PokemonPocket.Models
         }
 
         protected abstract int GetDamageMultiplier();
+
+        private int calculateDamage()
+        {
+            double multiplier = Max(this._random.NextDouble(), 0.5);
+            return Convert.ToInt32(SkillDamage * GetDamageMultiplier() * multiplier);
+        }
+
     }
 
 }

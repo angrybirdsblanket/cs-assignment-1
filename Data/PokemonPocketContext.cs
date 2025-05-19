@@ -54,7 +54,7 @@ public class PokemonPocketContext : DbContext
 
         modelBuilder.Entity<GymLeader>()
             .HasMany(gl => gl.PokemonTeam)
-            .WithOne()  
+            .WithOne()
             .HasForeignKey("GymLeaderId")
             .IsRequired(false)  // This allows Pokemon not belonging to a GymLeader to have a null GymLeaderId.
             .OnDelete(DeleteBehavior.Cascade);
