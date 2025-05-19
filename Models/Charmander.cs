@@ -8,5 +8,10 @@ namespace PokemonPocket.Models
         public Charmander(int hp, int exp) : base("Charmander", hp, exp, skill: "Solar Power", skillDamage: 10) { }
 
         protected override int GetDamageMultiplier() => 1;
+
+        // for marking
+        void calculateDamage(int damage) {
+          this.HP -=.HP -= damage * GetDamageMultiplier();
+        }
     }
 }

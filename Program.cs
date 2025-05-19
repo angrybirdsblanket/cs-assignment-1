@@ -18,7 +18,6 @@ namespace PokemonPocket
             service.InitialiseEvoRules();
             gyms.InitialiseGyms();
 
-            //for testing purposes
             if (args.Count() > 0 && "--seed".Equals(args[0]))
             {
                 List<Pokemon> list = PokemonService.GetPlayerPokemon(context);

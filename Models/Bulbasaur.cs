@@ -10,6 +10,11 @@ namespace PokemonPocket.Models
 
 
         protected override int GetDamageMultiplier() => 5;
+
+        // for marking
+        void calculateDamage(int damage) {
+          this.HP -= damage * GetDamageMultiplier();
+        }
     }
 
 }

@@ -7,5 +7,11 @@ namespace PokemonPocket.Models
         public Pikachu(int hp, int exp) : base("Pikachu", hp, exp, skill: "Lightning Bolt", skillDamage: 30) { }
 
         protected override int GetDamageMultiplier() => 3;
+
+        // for marking
+        int calculateDamage(int damage) {
+          return damage * GetDamageMultiplier();
+        }
+
     }
 }

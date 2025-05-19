@@ -7,5 +7,10 @@ namespace PokemonPocket.Models
         public Eevee(int hp, int exp) : base("Eevee", hp, exp, skill: "Run Away", skillDamage: 25) { }
 
         protected override int GetDamageMultiplier() => 2;
+
+        // for marking
+        void calculateDamage(int damage) {
+          this.HP -= damage * GetDamageMultiplier();
+        }
     }
 }
