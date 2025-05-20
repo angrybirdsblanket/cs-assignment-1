@@ -1,5 +1,6 @@
 namespace PokemonPocket.Data;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 public enum PokemonType
 {
@@ -23,7 +24,13 @@ public class PokemonPocketContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data Source=pokemon.db");
+        var userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var folderPath = Path.Combine(userFolder, "PokemonPocket");
+        Directory.CreateDirectory(folderPath);
+
+        var dbPath = Path.Combine(folderPath, "pokemon.db");
+
+        optionsBuilder.UseSqlite($"Data Source={dbPath}");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,7 +46,6 @@ public class PokemonPocketContext : DbContext
             .HasValue<Pikachu>(PokemonType.Pikachu)
             .HasValue<Charmander>(PokemonType.Charmander)
             .HasValue<Eevee>(PokemonType.Eevee)
-            .HasValue<Ivysaur>(PokemonType.Bulbasaur)
             .HasValue<Raichu>(PokemonType.Raichu)
             .HasValue<Flareon>(PokemonType.Flareon)
             .HasValue<Charmeleon>(PokemonType.Charmeleon)
