@@ -11,7 +11,7 @@ namespace PokemonPocket.Models
 
         // for marking
         void calculateDamage(int damage) {
-          this.HP -=.HP -= damage * GetDamageMultiplier();
+          this.HP -= damage * GetDamageMultiplier();
         }
     }
 }
