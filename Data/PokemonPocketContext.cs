@@ -39,7 +39,6 @@ public class PokemonPocketContext : DbContext
             .HasValue<Pikachu>(PokemonType.Pikachu)
             .HasValue<Charmander>(PokemonType.Charmander)
             .HasValue<Eevee>(PokemonType.Eevee)
-            .HasValue<Ivysaur>(PokemonType.Bulbasaur)
             .HasValue<Raichu>(PokemonType.Raichu)
             .HasValue<Flareon>(PokemonType.Flareon)
             .HasValue<Charmeleon>(PokemonType.Charmeleon)
