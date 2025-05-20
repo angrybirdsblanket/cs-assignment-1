@@ -540,7 +540,7 @@ namespace PokemonPocket.Services
 
     private void simpleAddPokemon() {
 
-      Console.Write("Enter Pokemon's Name: ");
+      Console.Write("Enter Pokemon's Name (Pikachu, charmander, eevee): ");
       string pokemonName = Console.ReadLine().ToLower();
 
       while (!(new[] {"pikachu", "charmander", "eevee"}.Contains(pokemonName))) {
