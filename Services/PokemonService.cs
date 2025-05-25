@@ -1,4 +1,5 @@
 using static System.Math;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace PokemonPocket.Services
@@ -8,14 +9,16 @@ namespace PokemonPocket.Services
     private readonly PokemonPocketContext _context;
     private readonly BattleService _battles;
     private readonly GymService _gyms;
+    private readonly SpliceService _splice;
     private bool simpleState;
 
-    public PokemonService(PokemonPocketContext context, BattleService battles, GymService gyms)
+    public PokemonService(PokemonPocketContext context, BattleService battles, GymService gyms, SpliceService splice)
     {
       this._context = context;
       this._battles = battles;
       this._gyms = gyms;
-      this.simpleState = true;
+      this._splice = splice;
+      this.simpleState = false;
     }
 
     private void addPokemon()
@@ -136,7 +139,7 @@ namespace PokemonPocket.Services
         {
           eligibleEvolutions = true;
           int eligibleCount = list.Count / rule.NoToEvolve * rule.NoToEvolve;
-          table.AddRow($"{eligibleCount} {rule.Name}" , $"{list.Count / rule.NoToEvolve} {rule.EvolveTo}");
+          table.AddRow($"{eligibleCount} {rule.Name}", $"{list.Count / rule.NoToEvolve} {rule.EvolveTo}");
         }
       }
       if (!eligibleEvolutions)
@@ -280,6 +283,7 @@ namespace PokemonPocket.Services
             "Evolve Pokemon",
             "Player Menu",
             "Gym Menu",
+            "PokeSplice Hub",
             "Toggle Game State",
             "Exit"
             }));
@@ -290,7 +294,7 @@ namespace PokemonPocket.Services
     {
       var selection = AnsiConsole.Prompt(
           new SelectionPrompt<string>()
-          .Title("[bold yellow]Player Menu[/]")
+          .Title("[bold yellow]==== Player Menu ====[/]")
           .PageSize(10)
           .AddChoices(new[] {
             "Check your player Statistics",
@@ -337,7 +341,8 @@ namespace PokemonPocket.Services
 
     public bool GetNextAction()
     {
-      switch(simpleState) {
+      switch (simpleState)
+      {
 
         case false:
           string input = this.drawMainMenu();
@@ -369,6 +374,12 @@ namespace PokemonPocket.Services
                 gymNotFinished = this._gyms.HandleGymMenu();
               }
               break;
+            case "PokeSplice Hub":
+              bool spliceNotFinished = false;
+              while (!spliceNotFinished) {
+                spliceNotFinished = this._splice.HandleSpliceMenu();
+              }
+              break;
             case "Toggle Game State":
               toggleGameState();
               break;
@@ -379,7 +390,8 @@ namespace PokemonPocket.Services
 
         case true:
           char simpleInput = drawSimpleMainMenu();
-          switch (simpleInput) {
+          switch (simpleInput)
+          {
             case '1':
               simpleAddPokemon();
               break;
@@ -403,57 +415,57 @@ namespace PokemonPocket.Services
       }
     }
 
-    public void InitialiseEvoRules()
+    public async Task InitialiseEvoRulesAsync()
     {
-      var pikachu_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Pikachu");
-      if (!(pikachu_query is PokemonMaster))
+      var pikachuQuery = await _context.EvolutionRules
+        .FirstOrDefaultAsync(r => r.Name == "Pikachu");
+      if (pikachuQuery == null)
       {
-        var pikachu = new PokemonMaster()
-        {
-          Name = "Pikachu",
-          NoToEvolve = 2,
-          EvolveTo = "Raichu"
-        };
-        this._context.EvolutionRules.Add(pikachu);
+        _context.EvolutionRules.Add(new PokemonMaster
+            {
+            Name       = "Pikachu",
+            NoToEvolve = 2,
+            EvolveTo   = "Raichu"
+            });
       }
 
-      var eevee_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Eevee");
-      if (!(eevee_query is PokemonMaster))
+      var eeveeQuery = await _context.EvolutionRules
+        .FirstOrDefaultAsync(r => r.Name == "Eevee");
+      if (eeveeQuery == null)
       {
-        var eevee = new PokemonMaster()
-        {
-          Name = "Eevee",
-          NoToEvolve = 3,
-          EvolveTo = "Flareon"
-        };
-        this._context.EvolutionRules.Add(eevee);
+        _context.EvolutionRules.Add(new PokemonMaster
+            {
+            Name       = "Eevee",
+            NoToEvolve = 3,
+            EvolveTo   = "Flareon"
+            });
       }
 
-      var charmander_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Charmander");
-      if (!(charmander_query is PokemonMaster))
+      var charmanderQuery = await _context.EvolutionRules
+        .FirstOrDefaultAsync(r => r.Name == "Charmander");
+      if (charmanderQuery == null)
       {
-        var charmander = new PokemonMaster()
-        {
-          Name = "Charmander",
-          NoToEvolve = 1,
-          EvolveTo = "Charmeleon"
-        };
-        this._context.EvolutionRules.Add(charmander);
+        _context.EvolutionRules.Add(new PokemonMaster
+            {
+            Name       = "Charmander",
+            NoToEvolve = 1,
+            EvolveTo   = "Charmeleon"
+            });
       }
 
-      var bulbasaur_query = this._context.EvolutionRules.FirstOrDefault(p => p.Name == "Bulbasaur");
-      if (!(bulbasaur_query is PokemonMaster))
+      var bulbasaurQuery = await _context.EvolutionRules
+        .FirstOrDefaultAsync(r => r.Name == "Bulbasaur");
+      if (bulbasaurQuery == null)
       {
-        var bulbasaur = new PokemonMaster()
-        {
-          Name = "Bulbasaur",
-          NoToEvolve = 5,
-          EvolveTo = "Ivysaur"
-        };
-        this._context.Add(bulbasaur);
+        _context.EvolutionRules.Add(new PokemonMaster
+            {
+            Name       = "Bulbasaur",
+            NoToEvolve = 5,
+            EvolveTo   = "Ivysaur"
+            });
       }
 
-      this._context.SaveChanges();
+      await _context.SaveChangesAsync();
     }
 
     public static List<Pokemon> GetPlayerPokemon(PokemonPocketContext context)
@@ -467,6 +479,28 @@ namespace PokemonPocket.Services
     public void testPokemon()
     {
       var pikachu = new Pikachu()
+      {
+        Name = "Pikachu",
+        HP = 1000,
+        MaxHP = 1000,
+        Exp = 0,
+        Skill = "Lightning Bolt",
+        SkillDamage = 100,
+        Level = 40
+      };
+
+      var pikachu2 = new Pikachu()
+      {
+        Name = "Pikachu",
+        HP = 1000,
+        MaxHP = 1000,
+        Exp = 0,
+        Skill = "Lightning Bolt",
+        SkillDamage = 100,
+        Level = 40
+      };
+
+      var pikachu3 = new Pikachu()
       {
         Name = "Pikachu",
         HP = 1000,
@@ -499,7 +533,18 @@ namespace PokemonPocket.Services
         Level = 40
       };
 
-      this._context.AddRange(pikachu, eevee, bulbasaur);
+      var eevee2 = new Eevee()
+      {
+        Name = "Eevee",
+        HP = 1000,
+        MaxHP = 1000,
+        Exp = 0,
+        Skill = "Run Away",
+        SkillDamage = 100,
+        Level = 40
+      };
+
+      this._context.AddRange(pikachu, pikachu2, pikachu3, eevee, eevee2, bulbasaur);
       this._context.SaveChanges();
     }
 
@@ -511,7 +556,8 @@ namespace PokemonPocket.Services
       AnsiConsole.Clear();
     }
 
-    private char drawSimpleMainMenu() {
+    private char drawSimpleMainMenu()
+    {
       Console.WriteLine(new string('*', 29));
       Console.WriteLine("Welcome to Pokemon Pocket App");
       Console.WriteLine(new string('*', 29));
@@ -523,9 +569,9 @@ namespace PokemonPocket.Services
       Console.Write("Please only enter [1,2,3,4,5] or press Q to quit: ");
 
       string inputString = Console.ReadLine().ToLower();
-      while (string.IsNullOrEmpty(inputString) || !(new[] {'1', '2', '3', '4', '5', 'q'}.Contains(inputString[0])))
+      while (string.IsNullOrEmpty(inputString) || !(new[] { '1', '2', '3', '4', '5', 'q' }.Contains(inputString[0])))
       {
-        Console.WriteLine("Invalid entry, please try again"); 
+        Console.WriteLine("Invalid entry, please try again");
         Console.WriteLine("(1). Add pokemon to my pocket");
         Console.WriteLine("(2). List pokemon(s) in my Pocket");
         Console.WriteLine("(3). Check if I can evlove pokemon");
@@ -534,16 +580,18 @@ namespace PokemonPocket.Services
 
         inputString = Console.ReadLine().ToLower();
       }
-      char input = inputString[0]; 
+      char input = inputString[0];
       return input;
     }
 
-    private void simpleAddPokemon() {
+    private void simpleAddPokemon()
+    {
 
       Console.Write("Enter Pokemon's Name: ");
       string pokemonName = Console.ReadLine().ToLower();
 
-      while (!(new[] {"pikachu", "charmander", "eevee"}.Contains(pokemonName))) {
+      while (!(new[] { "pikachu", "charmander", "eevee" }.Contains(pokemonName)))
+      {
         Console.WriteLine("Please only enter 'Pikachu' 'Charmander' or 'Eevee'");
         Console.Write("Enter Pokemon's Name: ");
         pokemonName = Console.ReadLine().ToLower();
@@ -555,7 +603,8 @@ namespace PokemonPocket.Services
       Console.Write("Enter Pokemon's Exp: ");
       int pokemonExp = Int32.Parse(Console.ReadLine());
 
-      switch(pokemonName) {
+      switch (pokemonName)
+      {
         case "pikachu":
           Pikachu pikachu = new Pikachu(pokemonHP, pokemonExp);
           this._context.Add(pikachu);
@@ -574,11 +623,13 @@ namespace PokemonPocket.Services
 
     }
 
-    private void simpleListPokemon() {
+    private void simpleListPokemon()
+    {
       List<Pokemon> pocket = PokemonService.GetPlayerPokemon(this._context)
         .OrderByDescending(p => p.Exp)
         .ToList();
-      foreach (Pokemon pokemon in pocket) {
+      foreach (Pokemon pokemon in pocket)
+      {
         Console.WriteLine($"Name: {pokemon.Name}");
         Console.WriteLine($"HP: {pokemon.HP}");
         Console.WriteLine($"Exp: {pokemon.Exp}");
@@ -587,7 +638,8 @@ namespace PokemonPocket.Services
       }
     }
 
-    private void simpleCheckEvolutionStatus() {
+    private void simpleCheckEvolutionStatus()
+    {
       var rules = this._context.EvolutionRules.ToList();
       bool eligibleEvolutions = false;
 
@@ -605,13 +657,16 @@ namespace PokemonPocket.Services
           Console.WriteLine($"{eligibleCount} {rule.Name} --> {evolutionCount} {rule.EvolveTo}");
         }
       }
-      if (!eligibleEvolutions) {
+      if (!eligibleEvolutions)
+      {
         Console.WriteLine("You currently have no eligible pokemon for evolution");
-      } 
+      }
     }
 
-    private void toggleGameState() {
-      switch (this.simpleState) {
+    private void toggleGameState()
+    {
+      switch (this.simpleState)
+      {
         case true:
           Console.Clear();
           this.simpleState = false;

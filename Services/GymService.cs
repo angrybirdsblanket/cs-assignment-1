@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks; 
 
 namespace PokemonPocket.Services
 {
@@ -50,86 +51,91 @@ namespace PokemonPocket.Services
             }
         }
 
-        public void InitialiseGyms()
+public async Task InitialiseGymsAsync()
+    {
+        // Check if we already have any gym leaders
+        var firstLeader = await _context.GymLeaders
+            .FirstOrDefaultAsync();
+
+        if (firstLeader == null)
         {
-            var firstLaunchTest = this._context.GymLeaders.FirstOrDefault();
-            if (firstLaunchTest == null)
+            // Define all your leaders
+            var leader1 = new GymLeader
             {
-                GymLeader leader_1 = new GymLeader
+                GymName     = "Thunderdome",
+                BadgeName   = "Electric Badge",
+                PokemonTeam = new List<Pokemon>
                 {
-                    GymName = "Thunderdome",
-                    BadgeName = "Electric Badge",
-                    PokemonTeam = new List<Pokemon>
-                    {
-                        new Pikachu { Name = "Pikachu", HP = 200, MaxHP = 200, Exp = 0, Skill = "Lightning Bolt", SkillDamage = 30, Level = 2 },
-                        new Raichu { Name = "Raichu", HP = 400, MaxHP = 400, Exp = 0, Skill = "Lightning Bolt", SkillDamage = 40, Level = 3 },
-                        new Eevee { Name = "Eevee", HP = 300, MaxHP = 300, Exp = 0, Skill = "Run Away", SkillDamage = 20, Level = 2 }
-                    },
-                    Defeated = false,
-                    TrainerName = "Arden"
-                };
+                    new Pikachu { Name = "Pikachu", HP = 200, MaxHP = 200, Exp = 0, Skill = "Lightning Bolt", SkillDamage = 30, Level = 2 },
+                    new Raichu  { Name = "Raichu",  HP = 400, MaxHP = 400, Exp = 0, Skill = "Lightning Bolt", SkillDamage = 40, Level = 3 },
+                    new Eevee   { Name = "Eevee",   HP = 300, MaxHP = 300, Exp = 0, Skill = "Run Away",       SkillDamage = 20, Level = 2 }
+                },
+                Defeated    = false,
+                TrainerName = "Arden"
+            };
 
-                GymLeader leader_2 = new GymLeader
+            var leader2 = new GymLeader
+            {
+                GymName     = "Verdant Grove",
+                BadgeName   = "Grass Badge",
+                PokemonTeam = new List<Pokemon>
                 {
-                    GymName = "Verdant Grove",
-                    BadgeName = "Grass Badge",
-                    PokemonTeam = new List<Pokemon>
-                    {
-                        new Bulbasaur { Name = "Bulbasaur", HP = 325, MaxHP = 325, Exp = 0, Skill = "Verdant Spiral", SkillDamage = 25, Level = 3 },
-                        new Ivysaur { Name = "Ivysaur", HP = 450, MaxHP = 450, Exp = 0, Skill = "Verdant Spiral", SkillDamage = 30, Level = 4 },
-                        new Eevee { Name = "Eevee", HP = 300, MaxHP = 300, Exp = 0, Skill = "Run Away", SkillDamage = 15, Level = 2 }
-                    },
-                    Defeated = false,
-                    TrainerName = "Kael"
-                };
+                    new Bulbasaur { Name = "Bulbasaur", HP = 325, MaxHP = 325, Exp = 0, Skill = "Verdant Spiral", SkillDamage = 25, Level = 3 },
+                    new Ivysaur   { Name = "Ivysaur",   HP = 450, MaxHP = 450, Exp = 0, Skill = "Verdant Spiral", SkillDamage = 30, Level = 4 },
+                    new Eevee     { Name = "Eevee",     HP = 300, MaxHP = 300, Exp = 0, Skill = "Run Away",       SkillDamage = 15, Level = 2 }
+                },
+                Defeated    = false,
+                TrainerName = "Kael"
+            };
 
-                GymLeader leader_3 = new GymLeader
+            var leader3 = new GymLeader
+            {
+                GymName     = "Blazing Inferno",
+                BadgeName   = "Fire Badge",
+                PokemonTeam = new List<Pokemon>
                 {
-                    GymName = "Blazing Inferno",
-                    BadgeName = "Fire Badge",
-                    PokemonTeam = new List<Pokemon>
-                    {
-                        new Charmander { Name = "Charmander", HP = 350, MaxHP = 350, Exp = 0, Skill = "Solar Power", SkillDamage = 20, Level = 3 },
-                        new Flareon { Name = "Flareon", HP = 450, MaxHP = 450, Exp = 0, Skill = "Run Away", SkillDamage = 40, Level = 4 },
-                        new Charmeleon { Name = "Charmeleon", HP = 500, MaxHP = 500, Exp = 0, Skill = "Solar Power", SkillDamage = 35, Level = 5 }
-                    },
-                    Defeated = false,
-                    TrainerName = "Liora"
-                };
+                    new Charmander { Name = "Charmander", HP = 350, MaxHP = 350, Exp = 0, Skill = "Solar Power", SkillDamage = 20, Level = 3 },
+                    new Flareon   { Name = "Flareon",    HP = 450, MaxHP = 450, Exp = 0, Skill = "Run Away",   SkillDamage = 40, Level = 4 },
+                    new Charmeleon{ Name = "Charmeleon", HP = 500, MaxHP = 500, Exp = 0, Skill = "Solar Power",SkillDamage = 35, Level = 5 }
+                },
+                Defeated    = false,
+                TrainerName = "Liora"
+            };
 
-                GymLeader leader_4 = new GymLeader
+            var leader4 = new GymLeader
+            {
+                GymName     = "Mystic Lagoon",
+                BadgeName   = "Water Badge",
+                PokemonTeam = new List<Pokemon>
                 {
-                    GymName = "Mystic Lagoon",
-                    BadgeName = "Water Badge",
-                    PokemonTeam = new List<Pokemon>
-                    {
-                        new Ivysaur { Name = "Ivysaur", HP = 500, MaxHP = 500, Exp = 0, Skill = "Verdant Spiral", SkillDamage = 35, Level = 5 },
-                        new Eevee { Name = "Eevee", HP = 525, MaxHP = 525, Exp = 0, Skill = "Run Away", SkillDamage = 25, Level = 4 },
-                        new Flareon { Name = "Flareon", HP = 450, MaxHP = 450, Exp = 0, Skill = "Run Away", SkillDamage = 30, Level = 5 }
-                    },
-                    Defeated = false,
-                    TrainerName = "Darius"
-                };
+                    new Ivysaur { Name = "Ivysaur", HP = 500, MaxHP = 500, Exp = 0, Skill = "Verdant Spiral", SkillDamage = 35, Level = 5 },
+                    new Eevee   { Name = "Eevee",   HP = 525, MaxHP = 525, Exp = 0, Skill = "Run Away",       SkillDamage = 25, Level = 4 },
+                    new Flareon { Name = "Flareon", HP = 450, MaxHP = 450, Exp = 0, Skill = "Run Away",       SkillDamage = 30, Level = 5 }
+                },
+                Defeated    = false,
+                TrainerName = "Darius"
+            };
 
-                GymLeader leader_5 = new GymLeader
+            var leader5 = new GymLeader
+            {
+                GymName     = "Dragon's Den",
+                BadgeName   = "Dragon Badge",
+                PokemonTeam = new List<Pokemon>
                 {
-                    GymName = "Dragon's Den",
-                    BadgeName = "Dragon Badge",
-                    PokemonTeam = new List<Pokemon>
-                    {
-                        new Charmeleon { Name = "Charmeleon", HP = 550, MaxHP = 550, Exp = 0, Skill = "Solar Power", SkillDamage = 40, Level = 6 },
-                        new Raichu { Name = "Raichu", HP = 600, MaxHP = 600, Exp = 0, Skill = "Lightning Bolt", SkillDamage = 50, Level = 7 },
-                        new Ivysaur { Name = "Ivysaur", HP = 525, MaxHP = 525, Exp = 0, Skill = "Verdant Spiral", SkillDamage = 45, Level = 6 }
-                    },
-                    Defeated = false,
-                    TrainerName = "Sylas"
-                };
+                    new Charmeleon{ Name = "Charmeleon", HP = 550, MaxHP = 550, Exp = 0, Skill = "Solar Power", SkillDamage = 40, Level = 6 },
+                    new Raichu    { Name = "Raichu",     HP = 600, MaxHP = 600, Exp = 0, Skill = "Lightning Bolt", SkillDamage = 50, Level = 7 },
+                    new Ivysaur   { Name = "Ivysaur",    HP = 525, MaxHP = 525, Exp = 0, Skill = "Verdant Spiral", SkillDamage = 45, Level = 6 }
+                },
+                Defeated    = false,
+                TrainerName = "Sylas"
+            };
 
-                this._context.GymLeaders.AddRange(new[] { leader_1, leader_2, leader_3, leader_4, leader_5 });
-                this._context.SaveChanges();
-            }
+            // Add all at once
+            var leaders = new[] { leader1, leader2, leader3, leader4, leader5 };
+            await _context.GymLeaders.AddRangeAsync(leaders);
+            await _context.SaveChangesAsync();
         }
-
+    }
         private void listGyms()
         {
             var gyms = this._context.GymLeaders.ToList();

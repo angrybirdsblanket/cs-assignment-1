@@ -10,7 +10,15 @@ public enum PokemonType
     Flareon,
     Charmeleon,
     Bulbasaur,
-    Ivysaur
+    Ivysaur,
+    Charmachu,
+    Charaichu,
+    Eeveechu,
+    Eeveeon,
+    Pikasaur,
+    Flareeveechu,
+    Charvysaur,
+    Charvysaurion
 }
 
 public class PokemonPocketContext : DbContext
@@ -20,6 +28,7 @@ public class PokemonPocketContext : DbContext
     public DbSet<Player> Players { get; set; } = null!;
     public DbSet<Badge> Badges { get; set; } = null!;
     public DbSet<GymLeader> GymLeaders { get; set; } = null!;
+    public DbSet<SplicingRule> SplicingRules { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -43,7 +52,15 @@ public class PokemonPocketContext : DbContext
             .HasValue<Flareon>(PokemonType.Flareon)
             .HasValue<Charmeleon>(PokemonType.Charmeleon)
             .HasValue<Bulbasaur>(PokemonType.Bulbasaur)
-            .HasValue<Ivysaur>(PokemonType.Ivysaur);
+            .HasValue<Ivysaur>(PokemonType.Ivysaur)
+            .HasValue<Eeveechu>(PokemonType.Eeveechu)
+            .HasValue<Eeveeon>(PokemonType.Eeveeon)
+            .HasValue<Pikasaur>(PokemonType.Pikasaur)
+            .HasValue<Flareeveechu>(PokemonType.Flareeveechu)
+            .HasValue<Charvysaur>(PokemonType.Charvysaur)
+            .HasValue<Charaichu>(PokemonType.Charaichu)
+            .HasValue<Charmachu>(PokemonType.Charmachu)
+            .HasValue<Charvysaurion>(PokemonType.Charvysaurion);
 
         modelBuilder.Entity<Player>()
             .HasMany(p => p.Badges)

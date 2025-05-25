@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
 
 namespace PokemonPocket.Models
 {
@@ -9,6 +8,6 @@ namespace PokemonPocket.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public int NoToEvolve { get; set; }
-        public string EvolveTo { get; set; } = null!;
+        public string EvolveTo { get; set; }
     }
 }
