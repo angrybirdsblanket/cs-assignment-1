@@ -167,7 +167,6 @@ namespace PokemonPocket.Services {
 
       while (splicing)
       {
-        // 1) Re-build your eligible list each iteration
         var eligible = new List<(SplicingRule rule, int count)>();
         var rules    = _context.SplicingRules.ToList();
         var pocket   = PokemonService.GetPlayerPokemon(_context);
@@ -181,7 +180,6 @@ namespace PokemonPocket.Services {
             eligible.Add((rule, possible));
         }
 
-        // 2) If nothing left to splice, bail out
         if (!eligible.Any())
         {
           splicing = false;
@@ -189,7 +187,6 @@ namespace PokemonPocket.Services {
           break;
         }
 
-        // 3) Build display choices (1-based index) + Go Back
         var choices = eligible
           .Select((e, idx) =>
               $"{idx + 1}. {e.count}× {e.rule.childName} " +
@@ -198,7 +195,6 @@ namespace PokemonPocket.Services {
           .Append("Go Back")
           .ToList();
 
-        // 4) Prompt
         var pick = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
             .Title("[bold yellow]Select a splice to perform[/]")
@@ -206,18 +202,15 @@ namespace PokemonPocket.Services {
             .AddChoices(choices)
             );
 
-        // 5) Handle Go Back
         if (pick == "Go Back")
         {
           splicing = false;
           break;
         }
 
-        // 6) Parse the chosen index
         int index = int.Parse(pick.Split('.')[0]) - 1;
         var (ruleToUse, _) = eligible[index];
 
-        // 7) Consume parents
         var removeA = pocket.Where(p => p.Name == ruleToUse.parentAName)
           .Take(ruleToUse.parentACount)
           .ToList();
@@ -227,7 +220,6 @@ namespace PokemonPocket.Services {
         _context.RemoveRange(removeA);
         _context.RemoveRange(removeB);
 
-        // 8) Create the child
         Pokemon child = ruleToUse.childName switch
         {
           "Eeveechu"       => new Eeveechu(),
@@ -241,7 +233,6 @@ namespace PokemonPocket.Services {
         };
         _context.Add(child);
 
-        // 9) Persist & report
         _context.SaveChanges();
         AnsiConsole.MarkupLine($"[green]Successfully spliced 1× {ruleToUse.childName}![/]");
       }
