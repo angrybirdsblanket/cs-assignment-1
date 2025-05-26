@@ -402,7 +402,7 @@ namespace PokemonPocket.Services
               simpleCheckEvolutionStatus();
               break;
             case '4':
-              evolveEligiblePokemon();
+              simpleEvolveEligiblePokemon();
               break;
             case '5':
               toggleGameState();
@@ -544,7 +544,18 @@ namespace PokemonPocket.Services
         Level = 40
       };
 
-      this._context.AddRange(pikachu, pikachu2, pikachu3, eevee, eevee2, bulbasaur);
+      var flareon = new Flareon()
+      {
+        Name = "Flareon",
+        HP = 1000,
+        MaxHP = 1000,
+        Exp = 0,
+        Skill = "Run Away",
+        SkillDamage = 100,
+        Level = 40
+      };
+
+      this._context.AddRange(pikachu, pikachu2, pikachu3, eevee, eevee2, bulbasaur, flareon);
       this._context.SaveChanges();
     }
 
@@ -661,6 +672,50 @@ namespace PokemonPocket.Services
       {
         Console.WriteLine("You currently have no eligible pokemon for evolution");
       }
+    }
+
+    
+    private void simpleEvolveEligiblePokemon()
+    {
+      var rules = _context.EvolutionRules.ToList();
+
+      foreach (var rule in rules)
+      {
+        var pocket = PokemonService.GetPlayerPokemon(this._context)
+          .Where(p => p.Name == rule.Name)
+          .OrderByDescending(p => p.MaxHP)
+          .ThenByDescending(p => p.Exp)
+          .ToList();
+
+        int fullGroups = pocket.Count / rule.NoToEvolve;
+
+        for (int g = 0; g < fullGroups; g++)
+        {
+          var batch = pocket.Skip(g * rule.NoToEvolve)
+            .Take(rule.NoToEvolve)
+            .ToList();
+
+          int maxHp = batch.Max(p => p.MaxHP);
+          int maxExp = batch.Max(p => p.Exp);
+          int maxLevel = batch.Max(p => p.Level);
+          int maxSkillDamage = batch.Max(p => p.SkillDamage);
+
+          this._context.RemoveRange(batch);
+
+          Pokemon evolved = rule.EvolveTo.ToLower() switch
+          {
+            "raichu" => new Raichu { HP = 100, Exp = 0, Name = "Raichu", Level = maxLevel, SkillDamage = 30, MaxHP = maxHp },
+            "charmeleon" => new Charmeleon { HP = 100, Exp = 0, Name = "Charmeleon", Level = maxLevel, SkillDamage = 10, MaxHP = maxHp },
+            "flareon" => new Flareon { HP = 100, Exp = 0, Name = "Flareon", Level = maxLevel, SkillDamage = 25, MaxHP = maxHp },
+            "ivysaur" => new Ivysaur { HP = 100, Exp = 0, Name = "Ivysaur", Level = maxLevel, SkillDamage = 15, MaxHP = maxHp },
+            _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
+          };
+          this._context.Add(evolved);
+
+        }
+      }
+
+      this._context.SaveChanges();
     }
 
     private void toggleGameState()
