@@ -574,7 +574,7 @@ namespace PokemonPocket.Services
       Console.WriteLine(new string('*', 29));
       Console.WriteLine("(1). Add pokemon to my pocket");
       Console.WriteLine("(2). List pokemon(s) in my Pocket");
-      Console.WriteLine("(3). Check if I can evlove pokemon");
+      Console.WriteLine("(3). Check if I can evolve pokemon");
       Console.WriteLine("(4). Evolve pokemon");
       Console.WriteLine("(5). Toggle Game State");
       Console.Write("Please only enter [1,2,3,4,5] or press Q to quit: ");
@@ -639,6 +639,12 @@ namespace PokemonPocket.Services
       List<Pokemon> pocket = PokemonService.GetPlayerPokemon(this._context)
         .OrderByDescending(p => p.Exp)
         .ToList();
+
+      if (pocket.Count == 0) {
+        Console.WriteLine("You currently have no Pokemon in your pocket.");
+        return;
+      }
+
       foreach (Pokemon pokemon in pocket)
       {
         Console.WriteLine($"Name: {pokemon.Name}");
@@ -675,9 +681,11 @@ namespace PokemonPocket.Services
     }
 
     
+    //add a way to announce if no pokemon are eligible for evolution, not that i dont have evo rules
     private void simpleEvolveEligiblePokemon()
     {
       var rules = _context.EvolutionRules.ToList();
+      bool hasEvolved = false;
 
       foreach (var rule in rules)
       {
@@ -711,8 +719,17 @@ namespace PokemonPocket.Services
             _ => throw new InvalidOperationException($"Unknown evolution target: {rule.EvolveTo}")
           };
           this._context.Add(evolved);
+          hasEvolved = true;
 
         }
+      }
+      if (hasEvolved)
+      {
+        Console.WriteLine("Your Pokemon have been evolved successfully!");
+      }
+      else
+      {
+        Console.WriteLine("You currently have no eligible Pokemon for evolution.");
       }
 
       this._context.SaveChanges();
