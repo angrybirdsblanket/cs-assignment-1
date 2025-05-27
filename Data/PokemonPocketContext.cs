@@ -33,13 +33,7 @@ public class PokemonPocketContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var folderPath = Path.Combine(userFolder, "PokemonPocket");
-        Directory.CreateDirectory(folderPath);
-
-        var dbPath = Path.Combine(folderPath, "pokemon.db");
-
-        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        optionsBuilder.UseSqlite($"Data Source=pokemon.db");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
