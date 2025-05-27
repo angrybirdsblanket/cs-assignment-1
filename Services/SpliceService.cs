@@ -167,6 +167,7 @@ namespace PokemonPocket.Services {
 
       while (splicing)
       {
+        // 1) Build eligible-splices list
         var eligible = new List<(SplicingRule rule, int count)>();
         var rules    = _context.SplicingRules.ToList();
         var pocket   = PokemonService.GetPlayerPokemon(_context);
@@ -180,13 +181,15 @@ namespace PokemonPocket.Services {
             eligible.Add((rule, possible));
         }
 
+        // 2) No more splices?
         if (!eligible.Any())
         {
-          splicing = false;
           AnsiConsole.MarkupLine("[red]No splices available right now.[/]");
+          splicing = false;
           break;
         }
 
+        // 3) Build menu choices
         var choices = eligible
           .Select((e, idx) =>
               $"{idx + 1}. {e.count}× {e.rule.childName} " +
@@ -195,6 +198,7 @@ namespace PokemonPocket.Services {
           .Append("Go Back")
           .ToList();
 
+        // 4) Prompt user
         var pick = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
             .Title("[bold yellow]Select a splice to perform[/]")
@@ -202,15 +206,18 @@ namespace PokemonPocket.Services {
             .AddChoices(choices)
             );
 
+        // 5) Handle “Go Back”
         if (pick == "Go Back")
         {
           splicing = false;
           break;
         }
 
+        // 6) Determine chosen rule
         int index = int.Parse(pick.Split('.')[0]) - 1;
         var (ruleToUse, _) = eligible[index];
 
+        // 7) Gather and remove sacrificial parents
         var removeA = pocket.Where(p => p.Name == ruleToUse.parentAName)
           .Take(ruleToUse.parentACount)
           .ToList();
@@ -220,19 +227,77 @@ namespace PokemonPocket.Services {
         _context.RemoveRange(removeA);
         _context.RemoveRange(removeB);
 
+        // 8) Compute max stats from all sacrificed Pokémon
+        var batch = removeA.Concat(removeB).ToList();
+        int maxHp          = batch.Max(p => p.MaxHP);
+        int maxExp         = batch.Max(p => p.Exp);
+        int maxLevel       = batch.Max(p => p.Level);
+        int maxSkillDamage = batch.Max(p => p.SkillDamage);
+
+        // 9) Create the new hybrid with inherited stats
         Pokemon child = ruleToUse.childName switch
         {
-          "Eeveechu"       => new Eeveechu(),
-          "Eeveeon"        => new Eeveeon(),
-          "Charvysaur"     => new Charvysaur(),
-          "Pikasaur"       => new Pikasaur(),
-          "Charaichu"      => new Charaichu(),
-          "Flareeveechu"   => new Flareeveechu(),
-          "Charvysaurion"  => new Charvysaurion(),
+          "Eeveechu"       => new Eeveechu {
+            Name        = ruleToUse.childName,
+            HP          = maxHp,
+            MaxHP       = maxHp,
+            Exp         = maxExp,
+            Level       = maxLevel,
+            SkillDamage = maxSkillDamage + 60
+          },
+          "Eeveeon"        => new Eeveeon {
+            Name        = ruleToUse.childName,
+            HP          = maxHp,
+            MaxHP       = maxHp,
+            Exp         = maxExp,
+            Level       = maxLevel,
+            SkillDamage = maxSkillDamage + 65
+          },
+          "Charvysaur"     => new Charvysaur {
+            Name        = ruleToUse.childName,
+            HP          = maxHp,
+            MaxHP       = maxHp,
+            Exp         = maxExp,
+            Level       = maxLevel,
+            SkillDamage = maxSkillDamage + 50
+          },
+          "Pikasaur"       => new Pikasaur {
+            Name        = ruleToUse.childName,
+            HP          = maxHp,
+            MaxHP       = maxHp,
+            Exp         = maxExp,
+            Level       = maxLevel,
+            SkillDamage = maxSkillDamage + 45
+          },
+          "Charaichu"      => new Charaichu {
+            Name        = ruleToUse.childName,
+            HP          = maxHp,
+            MaxHP       = maxHp,
+            Exp         = maxExp,
+            Level       = maxLevel,
+            SkillDamage = maxSkillDamage + 40
+          },
+          "Flareeveechu"   => new Flareeveechu {
+            Name        = ruleToUse.childName,
+            HP          = maxHp,
+            MaxHP       = maxHp,
+            Exp         = maxExp,
+            Level       = maxLevel,
+            SkillDamage = maxSkillDamage + 75
+          },
+          "Charvysaurion"  => new Charvysaurion {
+            Name        = ruleToUse.childName,
+            HP          = maxHp,
+            MaxHP       = maxHp,
+            Exp         = maxExp,
+            Level       = maxLevel,
+            SkillDamage = maxSkillDamage + 60
+          },
           _ => throw new InvalidOperationException("Unknown splice")
         };
         _context.Add(child);
 
+        // 10) Persist & report
         _context.SaveChanges();
         AnsiConsole.MarkupLine($"[green]Successfully spliced 1× {ruleToUse.childName}![/]");
       }

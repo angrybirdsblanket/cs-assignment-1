@@ -18,7 +18,7 @@ namespace PokemonPocket.Services
       this._battles = battles;
       this._gyms = gyms;
       this._splice = splice;
-      this.simpleState = false;
+      this.simpleState = true;
     }
 
     private void addPokemon()

@@ -2,9 +2,9 @@ namespace PokemonPocket.Models {
 
   public class Charvysaur : Pokemon {
 
-    public Charvysaur() : base("Charvysaur", hp: 120, exp: 0, skill: "Vine Whip", skillDamage: 50) { }
+    public Charvysaur() : base("Charvysaur", hp: 120, exp: 0, skill: "Flame Vine", skillDamage: 50) { }
     
-    public Charvysaur(int hp, int exp, int level, int skillDamage): base("Eeveechu", hp, exp, "Volt Dash", skillDamage: 50 + skillDamage) {
+    public Charvysaur(int hp, int exp, int level, int skillDamage): base("Charvysaur", hp, exp, "Flame Vine", skillDamage: 50 + skillDamage) {
       this.Level = level;
     }
   
