@@ -25,8 +25,8 @@ namespace PokemonPocket
             {
                 List<Pokemon> list = PokemonService.GetPlayerPokemon(context);
                 context.RemoveRange(list);
-                service.testPokemon();
-                service.testPokemon();
+                service.TestPokemon();
+                service.TestPokemon();
             }
 
             /* there will always be one player
