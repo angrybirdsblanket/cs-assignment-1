@@ -1,10 +1,11 @@
 ﻿using PokemonPocket.Services;
+using System.Threading.Tasks;
 
 namespace PokemonPocket
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
 
             using PokemonPocketContext context = new PokemonPocketContext();
@@ -13,15 +14,18 @@ namespace PokemonPocket
 
             BattleService battles = new BattleService(context);
             GymService gyms = new GymService(context);
-            PokemonService service = new PokemonService(context, battles, gyms);
+            SpliceService splice = new SpliceService(context);
+            PokemonService service = new PokemonService(context, battles, gyms, splice);
 
-            service.InitialiseEvoRules();
-            gyms.InitialiseGyms();
+            await service.InitialiseEvoRulesAsync();
+            await splice.InitialiseSplicingRulesAsync();
+            await gyms.InitialiseGymsAsync();
 
             if (args.Count() > 0 && "--seed".Equals(args[0]))
             {
                 List<Pokemon> list = PokemonService.GetPlayerPokemon(context);
                 context.RemoveRange(list);
+                service.testPokemon();
                 service.testPokemon();
             }
 

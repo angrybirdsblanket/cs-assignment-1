@@ -66,7 +66,7 @@ namespace PokemonPocket.Models
 
         public int calculateExp(Pokemon enemy, int damageDealt)
         {
-            const int maxExp = 50; 
+            const int maxExp = 50;
             int expGained;
             double levelRatio = (double)enemy.Level / (double)this.Level;
 

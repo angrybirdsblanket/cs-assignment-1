@@ -9,8 +9,9 @@ namespace PokemonPocket.Models
         protected override int GetDamageMultiplier() => 3;
 
         // for marking
-        int calculateDamage(int damage) {
-          return damage * GetDamageMultiplier();
+        int calculateDamage(int damage)
+        {
+            return damage * GetDamageMultiplier();
         }
 
     }
