@@ -1,6 +1,6 @@
+//Ivan Dochev 241836X
 namespace PokemonPocket.Data;
 using Microsoft.EntityFrameworkCore;
-using System.IO;
 
 public enum PokemonType
 {

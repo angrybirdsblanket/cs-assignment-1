@@ -1,3 +1,4 @@
+//Ivan Dochev 241836X
 using System.Threading.Tasks;
 
 
@@ -77,18 +78,18 @@ namespace PokemonPocket.Services
 
         public bool HandleSpliceMenu()
         {
-            string input = this.drawSpliceMenu();
+            string input = this.DrawSpliceMenu();
 
             switch (input)
             {
                 case "List Splicing Recipes":
-                    displaySplicingRecipes();
+                    DisplaySplicingRecipes();
                     return false;
                 case "Display Current Eligible Recipes":
-                    displayEligibleSpliceRecipes();
+                    DisplayEligibleSpliceRecipes();
                     return false;
                 case "Splice Eligible Pokemon":
-                    splicePokemon();
+                    SplicePokemon();
                     return false;
                 case "Go Back":
                     return true;
@@ -96,7 +97,7 @@ namespace PokemonPocket.Services
             return true;
         }
 
-        private string drawSpliceMenu()
+        private string DrawSpliceMenu()
         {
             var selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -112,7 +113,7 @@ namespace PokemonPocket.Services
             return selection;
         }
 
-        private void displaySplicingRecipes()
+        private void DisplaySplicingRecipes()
         {
             var table = new Table();
             table.Border = TableBorder.Rounded;
@@ -131,10 +132,10 @@ namespace PokemonPocket.Services
             }
 
             AnsiConsole.Write(table);
-            continueToMenu();
+            ContinueToMenu();
         }
 
-        private void displayEligibleSpliceRecipes()
+        private void DisplayEligibleSpliceRecipes()
         {
             List<SplicingRule> rules = this._context.SplicingRules.ToList();
 
@@ -172,16 +173,15 @@ namespace PokemonPocket.Services
             {
                 AnsiConsole.WriteLine("[red]You have no pokemon eligible for splicing.[/]");
             }
-            continueToMenu();
+            ContinueToMenu();
         }
 
-        private void splicePokemon()
+        private void SplicePokemon()
         {
             bool splicing = true;
 
             while (splicing)
             {
-                // 1) Build eligible-splices list
                 var eligible = new List<(SplicingRule rule, int count)>();
                 var rules = _context.SplicingRules.ToList();
                 var pocket = PokemonService.GetPlayerPokemon(_context);
@@ -323,10 +323,10 @@ namespace PokemonPocket.Services
                 AnsiConsole.MarkupLine($"[green]Successfully spliced 1× {ruleToUse.childName}![/]");
             }
 
-            continueToMenu();
+            ContinueToMenu();
         }
 
-        private void continueToMenu()
+        private void ContinueToMenu()
         {
             AnsiConsole.Prompt(
                 new TextPrompt<string>("[grey]Press enter to continue...[/]")

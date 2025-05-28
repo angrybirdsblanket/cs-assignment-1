@@ -1,5 +1,4 @@
-//eeveeon        => 1 eevee + 3 flareon,                  skill: Flare Storm,       damage: 65,  damage multiplier: 5
-
+//Ivan Dochev 241836X
 namespace PokemonPocket.Models
 {
     public class Eeveeon : Pokemon

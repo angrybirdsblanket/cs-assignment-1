@@ -1,4 +1,5 @@
-﻿using PokemonPocket.Services;
+﻿//Ivan Dochev 241836X
+using PokemonPocket.Services;
 using System.Threading.Tasks;
 
 namespace PokemonPocket

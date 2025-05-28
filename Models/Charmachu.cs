@@ -1,3 +1,4 @@
+//Ivan Dochev 241836X
 namespace PokemonPocket.Models
 {
     public class Charmachu : Pokemon

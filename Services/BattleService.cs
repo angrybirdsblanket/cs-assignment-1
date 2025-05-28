@@ -1,3 +1,4 @@
+//Ivan Dochev 241836X
 namespace PokemonPocket.Services
 {
     public class BattleService
@@ -11,7 +12,7 @@ namespace PokemonPocket.Services
         }
 
 
-        private Pokemon generateRandomPokemon()
+        private Pokemon GenerateRandomPokemon()
         {
             var pokemonTypes = new List<Func<Pokemon>>
             {
@@ -28,7 +29,7 @@ namespace PokemonPocket.Services
         public Pokemon Capture()
         {
             // Generate a wild Pokémon and announce its appearance.
-            Pokemon wild = generateRandomPokemon();
+            Pokemon wild = GenerateRandomPokemon();
             int goldGain;
             bool success = CatchPokemon(wild, out goldGain);
 
@@ -138,7 +139,7 @@ namespace PokemonPocket.Services
         private void ExecuteBattleRound(Pokemon attacker, Pokemon wild)
         {
             int damage = attacker.Attack(wild);
-            attacker.Exp += attacker.calculateExp(wild, damage);
+            attacker.Exp += attacker.CalculateExp(wild, damage);
             AnsiConsole.MarkupLine($"[cyan]Your {attacker.Name} attacked the wild {wild.Name} for {damage} damage, leaving it with {wild.HP} HP.[/]");
 
             if (wild.HP > 0)
@@ -227,7 +228,6 @@ namespace PokemonPocket.Services
             return _random.Next(1, 101) <= percentageChance;
         }
 
-        // Helper method to pause the console until the user presses Enter, then clear the screen.
         private void PauseAndClear()
         {
             AnsiConsole.MarkupLine("[grey]Press [underline]Enter[/] to continue...[/]");

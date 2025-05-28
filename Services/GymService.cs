@@ -1,3 +1,4 @@
+//Ivan Dochev 241836X
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ namespace PokemonPocket.Services
             this._context = context;
         }
 
-        private string displayGymMenu()
+        private string DisplayGymMenu()
         {
             string selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -31,18 +32,18 @@ namespace PokemonPocket.Services
 
         public bool HandleGymMenu()
         {
-            string input = displayGymMenu();
+            string input = DisplayGymMenu();
 
             switch (input)
             {
                 case "Check Upcoming Gym battles":
-                    listGyms();
+                    ListGyms();
                     return false;
                 case "Check next Gym Leader's Team":
-                    getNextFightPokemon();
+                    GetNextFightPokemon();
                     return false;
                 case "Start Gym fight":
-                    startGymFight();
+                    StartGymFight();
                     return false;
                 case "Go Back":
                     return true;
@@ -211,7 +212,7 @@ namespace PokemonPocket.Services
                 await _context.SaveChangesAsync();
             }
         }
-        private void listGyms()
+        private void ListGyms()
         {
             var gyms = this._context.GymLeaders.ToList();
 
@@ -232,10 +233,10 @@ namespace PokemonPocket.Services
             }
 
             AnsiConsole.Write(table);
-            continueToMenu();
+            ContinueToMenu();
         }
 
-        private void getNextFightPokemon()
+        private void GetNextFightPokemon()
         {
             var nextLeader = this._context.GymLeaders
               .Where(l => l.Defeated == false)
@@ -273,10 +274,10 @@ namespace PokemonPocket.Services
             {
                 AnsiConsole.MarkupLine("\n[green]Congratulations! You have defeated all gym leaders![/]");
             }
-            continueToMenu();
+            ContinueToMenu();
         }
 
-        private void startGymFight()
+        private void StartGymFight()
         {
             var leader = this._context.GymLeaders
               .Include(l => l.PokemonTeam)
@@ -286,7 +287,7 @@ namespace PokemonPocket.Services
             if (leader == null)
             {
                 AnsiConsole.MarkupLine("\n[green]You have defeated all leaders! Congratulations on becoming a Pokémon Master![/]");
-                continueToMenu();
+                ContinueToMenu();
                 return;
             }
 
@@ -299,7 +300,7 @@ namespace PokemonPocket.Services
             {
                 AnsiConsole.MarkupLine("\n[red]You do not have any Pokémon available for battle.[/]");
                 AnsiConsole.MarkupLine("[yellow]Please heal your Pokémon at the Pokémon Center before challenging a gym.[/]");
-                continueToMenu();
+                ContinueToMenu();
                 return;
             }
 
@@ -310,7 +311,7 @@ namespace PokemonPocket.Services
 
             bool playerWon = true;
 
-            int pokemonSelection = selectPokemon(pocket);
+            int pokemonSelection = SelectPokemon(pocket);
             Pokemon playerPokemon = pocket[pokemonSelection];
 
             int currentLeaderPokemonIndex = 0;
@@ -328,7 +329,7 @@ namespace PokemonPocket.Services
 
                 if (actionChoice == "Switch Pokémon")
                 {
-                    pokemonSelection = selectPokemon(pocket);
+                    pokemonSelection = SelectPokemon(pocket);
                     playerPokemon = pocket[pokemonSelection];
                     AnsiConsole.MarkupLine($"You switch to [green]{playerPokemon.Name}[/]!");
 
@@ -346,14 +347,14 @@ namespace PokemonPocket.Services
                             break;
                         }
 
-                        pokemonSelection = selectPokemon(pocket);
+                        pokemonSelection = SelectPokemon(pocket);
                         playerPokemon = pocket[pokemonSelection];
                         AnsiConsole.MarkupLine($"You send out [green]{playerPokemon.Name}[/]!");
                     }
                     continue;
                 }
 
-                executeBattleRound(playerPokemon, leaderCurrentPokemon);
+                ExecuteBattleRound(playerPokemon, leaderCurrentPokemon);
 
                 if (leaderCurrentPokemon.HP <= 0)
                 {
@@ -383,7 +384,7 @@ namespace PokemonPocket.Services
                         break;
                     }
 
-                    pokemonSelection = selectPokemon(pocket);
+                    pokemonSelection = SelectPokemon(pocket);
                     playerPokemon = pocket[pokemonSelection];
                     AnsiConsole.MarkupLine($"You send out [green]{playerPokemon.Name}[/]!");
                 }
@@ -437,10 +438,10 @@ namespace PokemonPocket.Services
             }
 
             this._context.SaveChanges();
-            continueToMenu();
+            ContinueToMenu();
         }
 
-        private List<Pokemon> getAvailablePokemon()
+        private List<Pokemon> GetAvailablePokemon()
         {
             return PokemonService.GetPlayerPokemon(this._context)
               .OrderBy(p => p.Id)
@@ -448,7 +449,7 @@ namespace PokemonPocket.Services
               .ToList();
         }
 
-        private int selectPokemon(List<Pokemon> pocket)
+        private int SelectPokemon(List<Pokemon> pocket)
         {
             var choices = pocket.Select((p, i) => $"{i}: {p.Name}, HP: {p.HP}/{p.MaxHP}, Level: {p.Level}, Exp: {p.Exp}/100").ToList();
             string choice = AnsiConsole.Prompt(
@@ -460,11 +461,11 @@ namespace PokemonPocket.Services
             return index;
         }
 
-        private void executeBattleRound(Pokemon attacker, Pokemon leaderPokemon)
+        private void ExecuteBattleRound(Pokemon attacker, Pokemon leaderPokemon)
         {
             int damage = attacker.Attack(leaderPokemon);
             AnsiConsole.MarkupLine($"Your [green]{attacker.Name}[/] attacked the trainer's [green]{leaderPokemon.Name}[/] for [bold]{damage}[/] damage and left it with [italic]{leaderPokemon.HP}[/] HP!");
-            attacker.Exp += attacker.calculateExp(leaderPokemon, damage);
+            attacker.Exp += attacker.CalculateExp(leaderPokemon, damage);
 
             if (leaderPokemon.HP > 0)
             {
@@ -473,8 +474,7 @@ namespace PokemonPocket.Services
             }
         }
 
-        // Helper method to pause and clear the console.
-        private void continueToMenu()
+        private void ContinueToMenu()
         {
             // Using a simple prompt so user can press Enter to continue.
             AnsiConsole.MarkupLine("[grey]Press [underline]Enter[/] to continue...[/]");

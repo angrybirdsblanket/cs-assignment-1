@@ -1,5 +1,4 @@
-//flareeveechu   => 1 flareon + 1 eevee + 1 pikachu,      skill: Elemental Charge,  damage: 75,  damage multiplier: 12
-
+//Ivan Dochev 241836X
 namespace PokemonPocket.Models
 {
     public class Flareeveechu : Pokemon

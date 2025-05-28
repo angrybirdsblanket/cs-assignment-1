@@ -1,3 +1,4 @@
+//Ivan Dochev 241836X
 using static System.Math;
 using System.ComponentModel.DataAnnotations;
 
@@ -64,7 +65,7 @@ namespace PokemonPocket.Models
         }
 
 
-        public int calculateExp(Pokemon enemy, int damageDealt)
+        public int CalculateExp(Pokemon enemy, int damageDealt)
         {
             const int maxExp = 50;
             int expGained;
