@@ -20,61 +20,21 @@ namespace PokemonPocket.Services
             {
                 var seeds = new[]
                 {
-          new SplicingRule {
-            parentAName  = "Eevee",
-            parentACount = 2,
-            parentBName  = "Pikachu",
-            parentBCount = 3,
-            childName    = "Eeveechu"
-          },
-          new SplicingRule {
-            parentAName  = "Eevee",
-            parentACount = 1,
-            parentBName  = "Flareon",
-            parentBCount = 3,
-            childName    = "Eeveeon"
-          },
-          new SplicingRule {
-            parentAName  = "Charmander",
-            parentACount = 5,
-            parentBName  = "Ivysaur",
-            parentBCount = 2,
-            childName    = "Charvysaur"
-          },
-          new SplicingRule {
-            parentAName  = "Pikachu",
-            parentACount = 3,
-            parentBName  = "Bulbasaur",
-            parentBCount = 2,
-            childName    = "Pikasaur"
-          },
-          new SplicingRule {
-            parentAName  = "Charmander",
-            parentACount = 4,
-            parentBName  = "Raichu",
-            parentBCount = 3,
-            childName    = "Charaichu"
-          },
-          new SplicingRule {
-            parentAName  = "Flareon",
-            parentACount = 2,
-            parentBName  = "Eeveechu",
-            parentBCount = 1,
-            childName    = "Flareeveechu"
-          },
-          new SplicingRule {
-            parentAName  = "Bulbasaur",
-            parentACount = 3,
-            parentBName  = "Charvysaur",
-            parentBCount = 2,
-            childName    = "Charvysaurion"
-          }
-        };
+          new SplicingRule("Eevee", 2, "Pikachu", 3, "Eeveechu"),
+          new SplicingRule("Eevee", 1, "Flareon", 3, "Eeveeon"),
+          new SplicingRule("Charmander", 5, "Ivysaur", 2, "Charvysaur"),
+          new SplicingRule("Pikachu", 3, "Bulbasaur", 2, "Pikasaur"),
+          new SplicingRule("Charmander", 4, "Raichu", 3, "Charaichu"),
+          new SplicingRule("Flareon", 2, "Eeveechu", 1, "Flareeveechu"),
+          new SplicingRule("Bulbasaur", 3, "Charvysaur", 2, "Charvysaurion")
 
+        };
                 await _context.AddRangeAsync(seeds);
-                await _context.SaveChangesAsync();
-            }
+            };
+
+            await _context.SaveChangesAsync();
         }
+
 
         public bool HandleSpliceMenu()
         {

@@ -12,5 +12,16 @@ namespace PokemonPocket.Models
         public string parentBName { get; set; }
         public int parentBCount { get; set; }
         public string childName { get; set; }
+
+        public SplicingRule() { }
+
+        public SplicingRule(string parentAName, int parentACount, string parentBName, int parentBCount, string childName)
+        {
+            this.parentAName = parentAName;
+            this.parentACount = parentACount;
+            this.parentBName = parentBName;
+            this.parentBCount = parentBCount;
+            this.childName = childName;
+        }
     }
 }

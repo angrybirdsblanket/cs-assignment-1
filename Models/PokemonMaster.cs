@@ -10,5 +10,16 @@ namespace PokemonPocket.Models
         public string Name { get; set; }
         public int NoToEvolve { get; set; }
         public string EvolveTo { get; set; }
+
+        // default constructor
+        public PokemonMaster() { } // for EF Core
+
+        public PokemonMaster(int id, string name, int noToEvolve, string evolveTo)
+        {
+            Id = id;
+            Name = name;
+            NoToEvolve = noToEvolve;
+            EvolveTo = evolveTo;
+        }
     }
 }
