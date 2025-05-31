@@ -1,4 +1,3 @@
-//Ivan Dochev 241836X
 // Ivan Dochev 241836X
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -55,7 +54,6 @@ namespace PokemonPocket.Services
 
         public async Task InitialiseGymsAsync()
         {
-            // Check if we already have any gym leaders
             var firstLeader = await this._context.GymLeaders.FirstOrDefaultAsync();
 
             if (firstLeader == null)
@@ -153,7 +151,6 @@ namespace PokemonPocket.Services
                         Defeated    = false,
                         TrainerName = "Nyx"
                     },
-                    // use pikasaur, charmachu, charvysaur
                     new GymLeader
                     {
                         GymName   = "Crystal Cavern",
@@ -195,7 +192,6 @@ namespace PokemonPocket.Services
                     }
                 };
 
-                // Add all at once
                 await this._context.GymLeaders.AddRangeAsync(leaders);
                 await this._context.SaveChangesAsync();
             }
@@ -474,7 +470,6 @@ namespace PokemonPocket.Services
 
         private void ContinueToMenu()
         {
-            // Using a simple prompt so user can press Enter to continue.
             AnsiConsole.MarkupLine("[grey]Press [underline]Enter[/] to continue...[/]");
             Console.ReadLine();
             AnsiConsole.Clear();

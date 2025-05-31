@@ -27,7 +27,6 @@ namespace PokemonPocket.Services
 
         public Pokemon Capture()
         {
-            // Generate a wild Pokémon and announce its appearance.
             Pokemon wild = this.GenerateRandomPokemon();
             int goldGain;
             bool success = this.CatchPokemon(wild, out goldGain);
@@ -40,7 +39,6 @@ namespace PokemonPocket.Services
                 player.Gold += goldGain;
             }
 
-            // Check for level ups after the combat and capture sequence.
             var levelablePokemon = PokemonService.GetPlayerPokemon(this._context)
                 .Where(p => p.Exp >= 100)
                 .ToList();
@@ -60,32 +58,26 @@ namespace PokemonPocket.Services
         private bool CatchPokemon(Pokemon wild, out int goldGain)
         {
             goldGain = 0;
-            int attempts = 3; // Total capture attempts available
+            int attempts = 3; 
             bool success = false;
             int maxHp = wild.HP;
 
             AnsiConsole.MarkupLine($"[bold yellow]\nA wild {wild.Name} with {maxHp} HP appeared![/]");
 
-            // Get the player's available Pokémon.
             List<Pokemon> pocket = this.GetAvailablePokemon();
 
             while (attempts > 0 && wild.HP > 0 && pocket.Count > 0)
             {
-                // Player selects a Pokémon to battle.
                 int selection = this.SelectPokemon(pocket);
                 Pokemon attacker = pocket[selection];
 
-                // Execute one battle round.
                 this.ExecuteBattleRound(attacker, wild);
 
-                // Display current battle status in a table for clarity.
                 this.DisplayBattleStatus(attacker, wild);
 
-                // If user's attacking Pokémon fainted, handle it and continue.
                 if (this.HandleFaintedAttacker(pocket, ref selection, attacker))
                     continue;
 
-                // Allow up to 3 capture attempts after each attack.
                 for (int i = 0; i < 3 && attempts > 0; i++)
                 {
                     bool userWantsToCapture;
@@ -107,7 +99,6 @@ namespace PokemonPocket.Services
             else if (wild.HP == 0 && !success)
                 AnsiConsole.MarkupLine($"[red]{wild.Name} has fainted and cannot be caught![/]");
 
-            // Removed the PauseAndClear from here so that only one prompt is used in Capture().
             return success;
         }
 
@@ -215,7 +206,7 @@ namespace PokemonPocket.Services
             }
 
             AnsiConsole.MarkupLine("[red]Capture failed.[/]");
-            attempts--; // Decrease attempts if capture fails
+            attempts--; 
 
             return false;
         }

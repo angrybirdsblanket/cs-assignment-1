@@ -31,7 +31,7 @@ namespace PokemonPocket
             }
 
             /* there will always be one player
-               if no player is found, the below if statement will generate one and add to the database*/
+               if no player is found, the below if statement will generate one and add to the database */
 
             if (context.Players.FirstOrDefault() == null)
             {
