@@ -20,21 +20,19 @@ namespace PokemonPocket.Services
             {
                 var seeds = new[]
                 {
-          new SplicingRule("Eevee", 2, "Pikachu", 3, "Eeveechu"),
-          new SplicingRule("Eevee", 1, "Flareon", 3, "Eeveeon"),
-          new SplicingRule("Charmander", 5, "Ivysaur", 2, "Charvysaur"),
-          new SplicingRule("Pikachu", 3, "Bulbasaur", 2, "Pikasaur"),
-          new SplicingRule("Charmander", 4, "Raichu", 3, "Charaichu"),
-          new SplicingRule("Flareon", 2, "Eeveechu", 1, "Flareeveechu"),
-          new SplicingRule("Bulbasaur", 3, "Charvysaur", 2, "Charvysaurion")
+                    new SplicingRule("Eevee", 2, "Pikachu", 3, "Eeveechu"),
+                    new SplicingRule("Eevee", 1, "Flareon", 3, "Eeveeon"),
+                    new SplicingRule("Charmander", 5, "Ivysaur", 2, "Charvysaur"),
+                    new SplicingRule("Pikachu", 3, "Bulbasaur", 2, "Pikasaur"),
+                    new SplicingRule("Charmander", 4, "Raichu", 3, "Charaichu"),
+                    new SplicingRule("Flareon", 2, "Eeveechu", 1, "Flareeveechu"),
+                    new SplicingRule("Bulbasaur", 3, "Charvysaur", 2, "Charvysaurion")
+                };
+                await this._context.AddRangeAsync(seeds);
+            }
 
-        };
-                await _context.AddRangeAsync(seeds);
-            };
-
-            await _context.SaveChangesAsync();
+            await this._context.SaveChangesAsync();
         }
-
 
         public bool HandleSpliceMenu()
         {
@@ -43,17 +41,18 @@ namespace PokemonPocket.Services
             switch (input)
             {
                 case "List Splicing Recipes":
-                    DisplaySplicingRecipes();
+                    this.DisplaySplicingRecipes();
                     return false;
                 case "Display Current Eligible Recipes":
-                    DisplayEligibleSpliceRecipes();
+                    this.DisplayEligibleSpliceRecipes();
                     return false;
                 case "Splice Eligible Pokemon":
-                    SplicePokemon();
+                    this.SplicePokemon();
                     return false;
                 case "Go Back":
                     return true;
             }
+
             return true;
         }
 
@@ -61,14 +60,16 @@ namespace PokemonPocket.Services
         {
             var selection = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                .Title("[bold yellow]==== The PokeSplicer ====[/]")
-                .PageSize(10)
-                .AddChoices(new[] {
-            "List Splicing Recipes",
-            "Display Current Eligible Recipes",
-            "Splice Eligible Pokemon",
-            "Go Back"
-                  }));
+                    .Title("[bold yellow]==== The PokeSplicer ====[/]")
+                    .PageSize(10)
+                    .AddChoices(new[]
+                    {
+                        "List Splicing Recipes",
+                        "Display Current Eligible Recipes",
+                        "Splice Eligible Pokemon",
+                        "Go Back"
+                    })
+            );
 
             return selection;
         }
@@ -88,11 +89,17 @@ namespace PokemonPocket.Services
 
             foreach (SplicingRule rule in rules)
             {
-                table.AddRow(rule.parentAName, rule.parentACount.ToString(), rule.parentBName, rule.parentBCount.ToString(), rule.childName);
+                table.AddRow(
+                    rule.parentAName,
+                    rule.parentACount.ToString(),
+                    rule.parentBName,
+                    rule.parentBCount.ToString(),
+                    rule.childName
+                );
             }
 
             AnsiConsole.Write(table);
-            ContinueToMenu();
+            this.ContinueToMenu();
         }
 
         private void DisplayEligibleSpliceRecipes()
@@ -102,26 +109,39 @@ namespace PokemonPocket.Services
             var table = new Table();
             table.Border = TableBorder.Rounded;
             table.Title("[bold underline]Eligible Splices[/]");
-            table.AddColumn("Pokemon A");
-            table.AddColumn("Pokemon B");
+            table.AddColumn("Pokémon A");
+            table.AddColumn("Pokémon B");
             table.AddColumn("Outcome");
 
             bool eligibleSplices = false;
 
             foreach (SplicingRule rule in rules)
             {
-                List<Pokemon> currPokemon = PokemonService.GetPlayerPokemon(this._context)
-                  .Where(p => p.Name == rule.parentAName || p.Name == rule.parentBName)
-                  .ToList();
+                List<Pokemon> currPokemon = PokemonService
+                    .GetPlayerPokemon(this._context)
+                    .Where(p => p.Name == rule.parentAName || p.Name == rule.parentBName)
+                    .ToList();
 
-                List<Pokemon> parentAPokemon = currPokemon.Where(p => p.Name == rule.parentAName).ToList();
-                List<Pokemon> parentBPokemon = currPokemon.Where(p => p.Name == rule.parentBName).ToList();
+                List<Pokemon> parentAPokemon = currPokemon
+                    .Where(p => p.Name == rule.parentAName)
+                    .ToList();
+                List<Pokemon> parentBPokemon = currPokemon
+                    .Where(p => p.Name == rule.parentBName)
+                    .ToList();
 
-                int childCount = System.Math.Min(parentAPokemon.Count() / rule.parentACount, parentBPokemon.Count() / rule.parentBCount);
+                int childCount = System.Math.Min(
+                    parentAPokemon.Count() / rule.parentACount,
+                    parentBPokemon.Count() / rule.parentBCount
+                );
+
                 if (childCount >= 1)
                 {
                     eligibleSplices = true;
-                    table.AddRow($"{rule.parentACount * childCount} {rule.parentAName}", $"{rule.parentBCount * childCount} {rule.parentBName}", $"{childCount} {rule.childName}");
+                    table.AddRow(
+                        $"{rule.parentACount * childCount} {rule.parentAName}",
+                        $"{rule.parentBCount * childCount} {rule.parentBName}",
+                        $"{childCount} {rule.childName}"
+                    );
                 }
             }
 
@@ -131,9 +151,10 @@ namespace PokemonPocket.Services
             }
             else
             {
-                AnsiConsole.WriteLine("[red]You have no pokemon eligible for splicing.[/]");
+                AnsiConsole.MarkupLine("[red]You have no Pokémon eligible for splicing.[/]");
             }
-            ContinueToMenu();
+
+            this.ContinueToMenu();
         }
 
         private void SplicePokemon()
@@ -143,19 +164,21 @@ namespace PokemonPocket.Services
             while (splicing)
             {
                 var eligible = new List<(SplicingRule rule, int count)>();
-                var rules = _context.SplicingRules.ToList();
-                var pocket = PokemonService.GetPlayerPokemon(_context);
+                var rules = this._context.SplicingRules.ToList();
+                var pocket = PokemonService.GetPlayerPokemon(this._context);
 
                 foreach (var rule in rules)
                 {
                     int haveA = pocket.Count(p => p.Name == rule.parentAName);
                     int haveB = pocket.Count(p => p.Name == rule.parentBName);
-                    int possible = Math.Min(haveA / rule.parentACount, haveB / rule.parentBCount);
+                    int possible = System.Math.Min(
+                        haveA / rule.parentACount,
+                        haveB / rule.parentBCount
+                    );
                     if (possible > 0)
                         eligible.Add((rule, possible));
                 }
 
-                // 2) No more splices?
                 if (!eligible.Any())
                 {
                     AnsiConsole.MarkupLine("[red]No splices available right now.[/]");
@@ -163,52 +186,48 @@ namespace PokemonPocket.Services
                     break;
                 }
 
-                // 3) Build menu choices
                 var choices = eligible
-                  .Select((e, idx) =>
-                      $"{idx + 1}. {e.count}× {e.rule.childName} " +
-                      $"({e.rule.parentACount}×{e.rule.parentAName} + {e.rule.parentBCount}×{e.rule.parentBName})"
-                      )
-                  .Append("Go Back")
-                  .ToList();
+                    .Select((e, idx) =>
+                        $"{idx + 1}. {e.count}× {e.rule.childName} " +
+                        $"({e.rule.parentACount}×{e.rule.parentAName} + {e.rule.parentBCount}×{e.rule.parentBName})"
+                    )
+                    .Append("Go Back")
+                    .ToList();
 
-                // 4) Prompt user
                 var pick = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
-                    .Title("[bold yellow]Select a splice to perform[/]")
-                    .PageSize(10)
-                    .AddChoices(choices)
-                    );
+                        .Title("[bold yellow]Select a splice to perform[/]")
+                        .PageSize(10)
+                        .AddChoices(choices)
+                );
 
-                // 5) Handle “Go Back”
                 if (pick == "Go Back")
                 {
                     splicing = false;
                     break;
                 }
 
-                // 6) Determine chosen rule
                 int index = int.Parse(pick.Split('.')[0]) - 1;
                 var (ruleToUse, _) = eligible[index];
 
-                // 7) Gather and remove sacrificial parents
-                var removeA = pocket.Where(p => p.Name == ruleToUse.parentAName)
-                  .Take(ruleToUse.parentACount)
-                  .ToList();
-                var removeB = pocket.Where(p => p.Name == ruleToUse.parentBName)
-                  .Take(ruleToUse.parentBCount)
-                  .ToList();
-                _context.RemoveRange(removeA);
-                _context.RemoveRange(removeB);
+                var removeA = pocket
+                    .Where(p => p.Name == ruleToUse.parentAName)
+                    .Take(ruleToUse.parentACount)
+                    .ToList();
+                var removeB = pocket
+                    .Where(p => p.Name == ruleToUse.parentBName)
+                    .Take(ruleToUse.parentBCount)
+                    .ToList();
 
-                // 8) Compute max stats from all sacrificed Pokémon
+                this._context.RemoveRange(removeA);
+                this._context.RemoveRange(removeB);
+
                 var batch = removeA.Concat(removeB).ToList();
                 int maxHp = batch.Max(p => p.MaxHP);
                 int maxExp = batch.Max(p => p.Exp);
                 int maxLevel = batch.Max(p => p.Level);
                 int maxSkillDamage = batch.Max(p => p.SkillDamage);
 
-                // 9) Create the new hybrid with inherited stats
                 Pokemon child = ruleToUse.childName switch
                 {
                     "Eeveechu" => new Eeveechu
@@ -276,23 +295,23 @@ namespace PokemonPocket.Services
                     },
                     _ => throw new InvalidOperationException("Unknown splice")
                 };
-                _context.Add(child);
 
-                // 10) Persist & report
-                _context.SaveChanges();
+                this._context.Add(child);
+                this._context.SaveChanges();
                 AnsiConsole.MarkupLine($"[green]Successfully spliced 1× {ruleToUse.childName}![/]");
             }
 
-            ContinueToMenu();
+            this.ContinueToMenu();
         }
 
         private void ContinueToMenu()
         {
             AnsiConsole.Prompt(
                 new TextPrompt<string>("[grey]Press enter to continue...[/]")
-                .AllowEmpty());
+                    .AllowEmpty()
+            );
             AnsiConsole.Clear();
         }
-
     }
 }
+

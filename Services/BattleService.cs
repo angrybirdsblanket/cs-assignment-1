@@ -1,4 +1,4 @@
-//Ivan Dochev 241836X
+// Ivan Dochev 241836X
 namespace PokemonPocket.Services
 {
     public class BattleService
@@ -10,7 +10,6 @@ namespace PokemonPocket.Services
         {
             this._context = context;
         }
-
 
         private Pokemon GenerateRandomPokemon()
         {
@@ -29,9 +28,9 @@ namespace PokemonPocket.Services
         public Pokemon Capture()
         {
             // Generate a wild Pokémon and announce its appearance.
-            Pokemon wild = GenerateRandomPokemon();
+            Pokemon wild = this.GenerateRandomPokemon();
             int goldGain;
-            bool success = CatchPokemon(wild, out goldGain);
+            bool success = this.CatchPokemon(wild, out goldGain);
 
             if (success)
             {
@@ -54,8 +53,7 @@ namespace PokemonPocket.Services
 
             this._context.SaveChanges();
 
-
-            PauseAndClear();
+            this.PauseAndClear();
             return success ? wild : null;
         }
 
@@ -69,29 +67,29 @@ namespace PokemonPocket.Services
             AnsiConsole.MarkupLine($"[bold yellow]\nA wild {wild.Name} with {maxHp} HP appeared![/]");
 
             // Get the player's available Pokémon.
-            List<Pokemon> pocket = GetAvailablePokemon();
+            List<Pokemon> pocket = this.GetAvailablePokemon();
 
             while (attempts > 0 && wild.HP > 0 && pocket.Count > 0)
             {
                 // Player selects a Pokémon to battle.
-                int selection = SelectPokemon(pocket);
+                int selection = this.SelectPokemon(pocket);
                 Pokemon attacker = pocket[selection];
 
                 // Execute one battle round.
-                ExecuteBattleRound(attacker, wild);
+                this.ExecuteBattleRound(attacker, wild);
 
                 // Display current battle status in a table for clarity.
-                DisplayBattleStatus(attacker, wild);
+                this.DisplayBattleStatus(attacker, wild);
 
                 // If user's attacking Pokémon fainted, handle it and continue.
-                if (HandleFaintedAttacker(pocket, ref selection, attacker))
+                if (this.HandleFaintedAttacker(pocket, ref selection, attacker))
                     continue;
 
                 // Allow up to 3 capture attempts after each attack.
                 for (int i = 0; i < 3 && attempts > 0; i++)
                 {
                     bool userWantsToCapture;
-                    success = PromptForCapture(wild, maxHp, ref attempts, out goldGain, out userWantsToCapture);
+                    success = this.PromptForCapture(wild, maxHp, ref attempts, out goldGain, out userWantsToCapture);
 
                     if (success)
                         break;
@@ -176,7 +174,7 @@ namespace PokemonPocket.Services
                     AnsiConsole.MarkupLine("[red]You have no more Pokémon left. The wild Pokémon fled.[/]");
                     return true;
                 }
-                selection = SelectPokemon(pocket);
+                selection = this.SelectPokemon(pocket);
                 return true;
             }
             return false;
@@ -199,12 +197,12 @@ namespace PokemonPocket.Services
                     .AddChoices("Yes", "No")
             );
 
-            userWantsToCapture = input == "Yes";
+            userWantsToCapture = (input == "Yes");
 
             if (!userWantsToCapture)
                 return false;
 
-            if (AttemptCatch(wild, maxHp))
+            if (this.AttemptCatch(wild, maxHp))
             {
                 double healthPercentage = (double)wild.HP / maxHp;
                 int baseGold = 20;
@@ -225,7 +223,7 @@ namespace PokemonPocket.Services
         private bool AttemptCatch(Pokemon wild, int maxHp)
         {
             int percentageChance = (int)(((double)(maxHp - wild.HP) / maxHp) * 100);
-            return _random.Next(1, 101) <= percentageChance;
+            return this._random.Next(1, 101) <= percentageChance;
         }
 
         private void PauseAndClear()
@@ -236,3 +234,4 @@ namespace PokemonPocket.Services
         }
     }
 }
+
